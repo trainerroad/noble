@@ -5,15 +5,15 @@
     "Luis Montes"
   ],
   "license": "MIT",
-  "name": "@abandonware/noble",
+  "name": "@trainerroad/noble",
   "description": "A Node.js BLE (Bluetooth Low Energy) central library.",
   "version": "1.9.2-23",
   "repository": {
     "type": "git",
-    "url": "https://github.com/abandonware/noble.git"
+    "url": "https://github.com/trainerroad/noble.git"
   },
   "bugs": {
-    "url": "https://github.com/abandonware/noble/issues"
+    "url": "https://github.com/trainerroad/noble/issues"
   },
   "keywords": [
     "bluetooth",
@@ -35,13 +35,14 @@
     "win32"
   ],
   "dependencies": {
+    "@mapbox/node-pre-gyp": "1.0.10",
+    "bindings": "^1.5.0",
     "debug": "^4.3.4",
     "napi-thread-safe-callback": "^0.0.6",
-    "node-addon-api": "^4.3.0",
-    "node-gyp-build": "^4.5.0"
+    "node-addon-api": "^4.3.0"
   },
   "optionalDependencies": {
-    "@abandonware/bluetooth-hci-socket": "^0.5.3-10"
+    "@trainerroad/bluetooth-hci-socket": "git+https://git@github.com/trainerroad/node-bluetooth-hci-socket.git#2cdd0acb7220e2ca821149f1b916e68c847ab135"
   },
   "devDependencies": {
     "async": "^3.2.4",
@@ -55,8 +56,6 @@
     "mocha": "^10.2.0",
     "node-gyp": "^9.3.1",
     "nyc": "^15.1.0",
-    "prebuildify": "^5.0.1",
-    "prebuildify-ci": "^1.0.5",
     "prettier": "^2.8.1",
     "proxyquire": "^2.1.3",
     "should": "~13.2.3",
@@ -64,14 +63,9 @@
     "ws": "^8.11.0"
   },
   "scripts": {
-    "install": "node-gyp-build",
+    "install": "node-pre-gyp install --fallback-to-build --update-binary",
     "lint": "eslint \"**/*.js\"",
     "lint-fix": "eslint \"**/*.js\" --fix",
-    "prebuild": "prebuildify --napi --strip",
-    "prebuild-darwin": "prebuildify --napi --strip --arch x64+arm64",
-    "prebuild-win32": "prebuildify --napi --strip",
-    "prebuild-linux": "prebuildify --napi --strip",
-    "prebuild-download": "prebuildify-ci download",
     "pretest": "npm run rebuild",
     "rebuild": "node-gyp rebuild",
     "coverage": "nyc npm test && nyc report --reporter=text-lcov > .nyc_output/lcov.info",
@@ -81,8 +75,9 @@
     "./lib/resolve-bindings.js": "./lib/resolve-bindings-web.js"
   },
   "binary": {
-    "napi_versions": [
-      4
-    ]
+    "module_name": "noble",
+    "module_path": "./lib/binding/",
+    "host": "https://github.com/trainerroad/noble/releases/download/",
+    "remote_path": "v{version}"
   }
 }
