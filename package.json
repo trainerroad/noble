@@ -35,7 +35,6 @@
     "win32"
   ],
   "dependencies": {
-    "@mapbox/node-pre-gyp": "1.0.10",
     "bindings": "^1.5.0",
     "debug": "^4.3.4",
     "napi-thread-safe-callback": "^0.0.6",
@@ -53,6 +52,7 @@
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-n": "^15.6.0",
     "eslint-plugin-promise": "^6.1.1",
+    "prebuild-install": "7.1.1",
     "mocha": "^10.2.0",
     "node-gyp": "^9.3.1",
     "nyc": "^15.1.0",
@@ -63,7 +63,7 @@
     "ws": "^8.11.0"
   },
   "scripts": {
-    "install": "node-pre-gyp install --fallback-to-build --update-binary",
+    "install": "prebuild-install --verbose || node-gyp rebuild",
     "lint": "eslint \"**/*.js\"",
     "lint-fix": "eslint \"**/*.js\" --fix",
     "pretest": "npm run rebuild",
@@ -73,10 +73,5 @@
   },
   "browser": {
     "./lib/resolve-bindings.js": "./lib/resolve-bindings-web.js"
-  },
-  "binary": {
-    "module_name": "noble",
-    "host": "https://github.com/trainerroad/noble/releases/download/",
-    "remote_path": "v{version}"
   }
 }
