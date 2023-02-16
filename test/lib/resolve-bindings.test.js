@@ -12,26 +12,26 @@ class NobleMac {}
 class NobleWinrt {}
 
 const NobleMacImport = proxyquire('../../lib/mac/bindings', {
-  'node-gyp-build': () => ({ NobleMac })
+  bindings: () => ({ NobleMac }),
 });
 
 const NobleWinrtImport = proxyquire('../../lib/win/bindings', {
-  'node-gyp-build': () => ({ NobleWinrt })
+  bindings: () => ({ NobleWinrt }),
 });
 
 const WebSocket = require('../../lib/websocket/bindings');
 const NobleBindings = proxyquire('../../lib/distributed/bindings', {
-  ws: { Server: EventEmitter }
+  ws: { Server: EventEmitter },
 });
 const HciNobleBindings = proxyquire('../../lib/hci-socket/bindings', {
-  './hci': EventEmitter
+  './hci': EventEmitter,
 });
 const resolver = proxyquire('../../lib/resolve-bindings', {
   './distributed/bindings': NobleBindings,
   './hci-socket/bindings': HciNobleBindings,
   './mac/bindings': NobleMacImport,
   './win/bindings': NobleWinrtImport,
-  os: { platform, release }
+  os: { platform, release },
 });
 
 describe('resolve-bindings', () => {

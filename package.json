@@ -41,9 +41,10 @@
     "node-addon-api": "^4.3.0"
   },
   "optionalDependencies": {
-    "@trainerroad/bluetooth-hci-socket": "git+https://git@github.com/trainerroad/node-bluetooth-hci-socket.git#2cdd0acb7220e2ca821149f1b916e68c847ab135"
+    "@trainerroad/bluetooth-hci-socket": "git+https://git@github.com/trainerroad/node-bluetooth-hci-socket.git#v0.5.3-10"
   },
   "devDependencies": {
+    "@mapbox/node-pre-gyp": "^1.0.10",
     "async": "^3.2.4",
     "cross-env": "^7.0.3",
     "eslint": "^8.31.0",
@@ -52,7 +53,6 @@
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-n": "^15.6.0",
     "eslint-plugin-promise": "^6.1.1",
-    "prebuild-install": "7.1.1",
     "mocha": "^10.2.0",
     "node-gyp": "^9.3.1",
     "nyc": "^15.1.0",
@@ -62,8 +62,9 @@
     "sinon": "^15.0.1",
     "ws": "^8.11.0"
   },
+  "updateName": "test",
   "scripts": {
-    "install": "prebuild-install --verbose || node-gyp rebuild",
+    "install": "node-pre-gyp install",
     "lint": "eslint \"**/*.js\"",
     "lint-fix": "eslint \"**/*.js\" --fix",
     "pretest": "npm run rebuild",
@@ -73,5 +74,8 @@
   },
   "browser": {
     "./lib/resolve-bindings.js": "./lib/resolve-bindings-web.js"
+  },
+  "binary": {
+    "module_name": "noble"
   }
 }
