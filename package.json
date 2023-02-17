@@ -35,6 +35,7 @@
     "win32"
   ],
   "dependencies": {
+    "@mapbox/node-pre-gyp": "^1.0.10",
     "bindings": "^1.5.0",
     "debug": "^4.3.4",
     "napi-thread-safe-callback": "^0.0.6",
@@ -44,7 +45,6 @@
     "@trainerroad/bluetooth-hci-socket": "git+https://git@github.com/trainerroad/node-bluetooth-hci-socket.git#v0.5.3-10"
   },
   "devDependencies": {
-    "@mapbox/node-pre-gyp": "^1.0.10",
     "async": "^3.2.4",
     "cross-env": "^7.0.3",
     "eslint": "^8.31.0",
