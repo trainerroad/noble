@@ -67,7 +67,7 @@
   },
   "updateName": "test",
   "scripts": {
-    "install": "node-pre-gyp install",
+    "install": "node-pre-gyp install --fallback-to-build --update-binary",
     "lint": "eslint \"**/*.js\"",
     "gen-prebuilds": "node ./generate-prebuilds.mjs",
     "lint-fix": "eslint \"**/*.js\" --fix",
