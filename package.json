@@ -69,7 +69,7 @@
   "scripts": {
     "install": "node-pre-gyp install",
     "lint": "eslint \"**/*.js\"",
-    "gen-prebuilds": "node ./generate-prebuilds.js",
+    "gen-prebuilds": "node ./generate-prebuilds.mjs",
     "lint-fix": "eslint \"**/*.js\" --fix",
     "pretest": "npm run rebuild",
     "rebuild": "node-gyp rebuild",
