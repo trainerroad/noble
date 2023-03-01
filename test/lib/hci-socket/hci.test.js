@@ -9,7 +9,7 @@ describe('hci-socket hci', () => {
   const Socket = sinon.stub();
 
   const Hci = proxyquire('../../../lib/hci-socket/hci', {
-    '@abandonware/bluetooth-hci-socket': Socket
+    '@trainerroad/bluetooth-hci-socket': Socket
   });
 
   let hci;
