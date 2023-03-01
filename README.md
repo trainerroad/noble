@@ -1,15 +1,5 @@
 # ![noble](assets/noble-logo.png)
 
-[![npm version](https://badgen.net/npm/v/@abandonware/noble)](https://www.npmjs.com/package/@abandonware/noble)
-[![npm downloads](https://badgen.net/npm/dt/@abandonware/noble)](https://www.npmjs.com/package/@abandonware/noble)
-[![Build Status](https://travis-ci.org/abandonware/noble.svg?branch=master)](https://travis-ci.org/abandonware/noble)
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/abandonware/noble?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![OpenCollective](https://opencollective.com/noble/backers/badge.svg)](#backers)
-[![OpenCollective](https://opencollective.com/noble/sponsors/badge.svg)](#sponsors)
-
-A Node.js BLE (Bluetooth Low Energy) central module.
-
-Want to implement a peripheral? Check out [bleno](https://github.com/abandonware/bleno).
-
 __Note:__ macOS / Mac OS X, Linux, FreeBSD and Windows are currently the only supported OSes.
 
 ## Documentation
@@ -25,7 +15,7 @@ __Note:__ macOS / Mac OS X, Linux, FreeBSD and Windows are currently the only su
 ```javascript
 // Read the battery level of the first found peripheral exposing the Battery Level characteristic
 
-const noble = require('@abandonware/noble');
+const noble = require('@trainerroad/noble');
 
 noble.on('stateChange', async (state) => {
   if (state === 'poweredOn') {
@@ -48,7 +38,7 @@ noble.on('discover', async (peripheral) => {
 ## Use Noble With BLE5 Extended Features With HCI 
 
 ```javascript
-const noble = require('@abandonware/noble/with-custom-binding')({extended: true});
+const noble = require('@trainerroad/noble/with-custom-binding')({extended: true});
 
 ```
 
@@ -156,7 +146,7 @@ Make sure your container runs with `--network=host` options and all specific env
 ### Installing and using the package
 
 ```sh
-npm install @abandonware/noble
+npm install @trainerroad/noble
 ```
 
 In Windows OS add your custom hci-usb dongle to the process env
@@ -166,7 +156,7 @@ set BLUETOOTH_HCI_SOCKET_USB_PID=xxx
 ```
 
 ```javascript
-const noble = require('@abandonware/noble');
+const noble = require('@trainerroad/noble');
 ```
 
 ## API docs
@@ -638,7 +628,7 @@ descriptor.once('valueWrite');
 By default, noble will select appropriate Bluetooth device bindings based on your platform. You can provide custom bindings using the `with-bindings` module.
 
 ```javascript
-var noble = require('@abandonware/noble/with-bindings')(require('./my-custom-bindings'));
+var noble = require('@trainerroad/noble/with-bindings')(require('./my-custom-bindings'));
 ```
 
 ### Running without root/sudo (Linux-specific)
@@ -672,8 +662,8 @@ sudo NOBLE_HCI_DEVICE_ID=1 node <your file>.js
 If you are using multiple HCI devices in one setup you can run two instances of noble with different binding configurations by initializing them seperatly in code:
 
 ```
-const HCIBindings = require('@abandonware/noble/lib/hci-socket/bindings');
-const Noble = require('@abandonware/noble/lib/noble');
+const HCIBindings = require('@trainerroad/noble/lib/hci-socket/bindings');
+const Noble = require('@trainerroad/noble/lib/noble');
 
 const params = {
   deviceId: 0,
