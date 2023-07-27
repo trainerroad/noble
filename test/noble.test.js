@@ -19,7 +19,7 @@ describe('noble', () => {
   beforeEach(() => {
     mockBindings = {
       init: () => {},
-      on: () => {}
+      on: () => {},
     };
 
     noble = new Noble(mockBindings);
@@ -301,7 +301,7 @@ describe('noble', () => {
     it('should emit connected on existing peripheral', () => {
       const emit = sinon.spy();
       noble._peripherals = {
-        uuid: { emit }
+        uuid: { emit },
       };
 
       const warningCallback = sinon.spy();
@@ -313,14 +313,14 @@ describe('noble', () => {
       assert.notCalled(warningCallback);
 
       should(noble._peripherals).deepEqual({
-        uuid: { state: 'connected', emit }
+        uuid: { state: 'connected', emit },
       });
     });
 
     it('should emit error on existing peripheral', () => {
       const emit = sinon.spy();
       noble._peripherals = {
-        uuid: { emit }
+        uuid: { emit },
       };
 
       const warningCallback = sinon.spy();
@@ -332,7 +332,7 @@ describe('noble', () => {
       assert.notCalled(warningCallback);
 
       should(noble._peripherals).deepEqual({
-        uuid: { state: 'error', emit }
+        uuid: { state: 'error', emit },
       });
     });
 
@@ -342,7 +342,10 @@ describe('noble', () => {
       noble.on('warning', warningCallback);
       noble.onConnect('uuid', true);
 
-      assert.calledOnceWithExactly(warningCallback, 'unknown peripheral uuid connected!');
+      assert.calledOnceWithExactly(
+        warningCallback,
+        'unknown peripheral uuid connected!'
+      );
 
       should(noble._peripherals).deepEqual({});
     });
@@ -492,7 +495,7 @@ describe('noble', () => {
     it('should emit disconnect on existing peripheral', () => {
       const emit = sinon.spy();
       noble._peripherals = {
-        uuid: { emit }
+        uuid: { emit },
       };
 
       const warningCallback = sinon.spy();
@@ -504,7 +507,7 @@ describe('noble', () => {
       assert.notCalled(warningCallback);
 
       should(noble._peripherals).deepEqual({
-        uuid: { state: 'disconnected', emit }
+        uuid: { state: 'disconnected', emit },
       });
     });
 
@@ -514,7 +517,10 @@ describe('noble', () => {
       noble.on('warning', warningCallback);
       noble.onDisconnect('uuid', true);
 
-      assert.calledOnceWithExactly(warningCallback, 'unknown peripheral uuid disconnected!');
+      assert.calledOnceWithExactly(
+        warningCallback,
+        'unknown peripheral uuid disconnected!'
+      );
 
       should(noble._peripherals).deepEqual({});
     });
@@ -714,7 +720,7 @@ describe('noble', () => {
     it('should emit rssiUpdate on existing peripheral', () => {
       const emit = sinon.spy();
       noble._peripherals = {
-        uuid: { emit }
+        uuid: { emit },
       };
 
       const warningCallback = sinon.spy();
@@ -726,7 +732,7 @@ describe('noble', () => {
       assert.notCalled(warningCallback);
 
       should(noble._peripherals).deepEqual({
-        uuid: { rssi: 3, emit }
+        uuid: { rssi: 3, emit },
       });
     });
 
@@ -736,7 +742,10 @@ describe('noble', () => {
       noble.on('warning', warningCallback);
       noble.onRssiUpdate('uuid', 4);
 
-      assert.calledOnceWithExactly(warningCallback, 'unknown peripheral uuid RSSI update!');
+      assert.calledOnceWithExactly(
+        warningCallback,
+        'unknown peripheral uuid RSSI update!'
+      );
 
       should(noble._peripherals).deepEqual({});
     });
@@ -759,7 +768,7 @@ describe('noble', () => {
   describe('addService', () => {
     const peripheralUuid = 'peripheralUuid';
     const service = {
-      uuid: 'serviceUuid'
+      uuid: 'serviceUuid',
     };
     const peripheral = {};
 
@@ -775,25 +784,29 @@ describe('noble', () => {
 
       const result = noble.addService(peripheralUuid, service);
 
-      assert.calledOnceWithExactly(noble._bindings.addService, peripheralUuid, service);
+      assert.calledOnceWithExactly(
+        noble._bindings.addService,
+        peripheralUuid,
+        service
+      );
 
       const expectedService = new Service(noble, peripheralUuid, service.uuid);
       should(result).deepEqual(expectedService);
       should(peripheral.services).deepEqual([expectedService]);
       should(noble._services).deepEqual({
         [peripheralUuid]: {
-          [service.uuid]: expectedService
-        }
+          [service.uuid]: expectedService,
+        },
       });
       should(noble._characteristics).deepEqual({
         [peripheralUuid]: {
-          [service.uuid]: {}
-        }
+          [service.uuid]: {},
+        },
       });
       should(noble._descriptors).deepEqual({
         [peripheralUuid]: {
-          [service.uuid]: {}
-        }
+          [service.uuid]: {},
+        },
       });
     });
 
@@ -807,18 +820,18 @@ describe('noble', () => {
       should(peripheral.services).deepEqual([expectedService]);
       should(noble._services).deepEqual({
         [peripheralUuid]: {
-          [service.uuid]: expectedService
-        }
+          [service.uuid]: expectedService,
+        },
       });
       should(noble._characteristics).deepEqual({
         [peripheralUuid]: {
-          [service.uuid]: {}
-        }
+          [service.uuid]: {},
+        },
       });
       should(noble._descriptors).deepEqual({
         [peripheralUuid]: {
-          [service.uuid]: {}
-        }
+          [service.uuid]: {},
+        },
       });
     });
   });
@@ -842,14 +855,24 @@ describe('noble', () => {
 
       noble.onServicesDiscovered(peripheralUuid, services);
 
-      assert.calledOnceWithExactly(emit, 'servicesDiscovered', { uuid: 'peripheral', emit }, services);
+      assert.calledOnceWithExactly(
+        emit,
+        'servicesDiscovered',
+        { uuid: 'peripheral', emit },
+        services,
+        undefined
+      );
     });
   });
 
   it('discoverServices - should delegate to bindings', () => {
     noble._bindings.discoverServices = sinon.spy();
     noble.discoverServices('peripheral', 'uuids');
-    assert.calledOnceWithExactly(noble._bindings.discoverServices, 'peripheral', 'uuids');
+    assert.calledOnceWithExactly(
+      noble._bindings.discoverServices,
+      'peripheral',
+      'uuids'
+    );
   });
 
   describe('onServicesDiscover', () => {
@@ -858,9 +881,12 @@ describe('noble', () => {
 
       noble.on('warning', warningCallback);
 
-      noble.onServicesDiscover('pUuid', ['service1', 'service2']);
+      noble.onServicesDiscover('pUuid', ['service1', 'service2'], undefined);
 
-      assert.calledOnceWithExactly(warningCallback, 'unknown peripheral pUuid services discover!');
+      assert.calledOnceWithExactly(
+        warningCallback,
+        'unknown peripheral pUuid services discover!'
+      );
     });
 
     it('should emit servicesDiscover and store services', () => {
@@ -878,22 +904,29 @@ describe('noble', () => {
 
       noble.onServicesDiscover(peripheralUuid, ['service1', 'service2']);
 
-      const services = [new Service(noble, peripheralUuid, 'service1'), new Service(noble, peripheralUuid, 'service2')];
+      const services = [
+        new Service(noble, peripheralUuid, 'service1'),
+        new Service(noble, peripheralUuid, 'service2'),
+      ];
 
-      assert.calledOnceWithExactly(discoverCallback, 'servicesDiscover', services);
+      assert.calledOnceWithExactly(
+        discoverCallback,
+        'servicesDiscover',
+        services
+      );
       assert.notCalled(warningCallback);
 
       should(noble._peripherals).deepEqual({
-        [peripheralUuid]: { services, emit: discoverCallback }
+        [peripheralUuid]: { services, emit: discoverCallback },
       });
       should(noble._services).deepEqual({
-        [peripheralUuid]: { service1: services[0], service2: services[1] }
+        [peripheralUuid]: { service1: services[0], service2: services[1] },
       });
       should(noble._characteristics).deepEqual({
-        [peripheralUuid]: { service1: {}, service2: {} }
+        [peripheralUuid]: { service1: {}, service2: {} },
       });
       should(noble._descriptors).deepEqual({
-        [peripheralUuid]: { service1: {}, service2: {} }
+        [peripheralUuid]: { service1: {}, service2: {} },
       });
     });
   });
@@ -908,8 +941,17 @@ describe('noble', () => {
     });
 
     it('should disconnect', () => {
-      noble.discoverIncludedServices('peripheralUuid', 'serviceUuid', 'serviceUuids');
-      assert.calledOnceWithExactly(mockBindings.discoverIncludedServices, 'peripheralUuid', 'serviceUuid', 'serviceUuids');
+      noble.discoverIncludedServices(
+        'peripheralUuid',
+        'serviceUuid',
+        'serviceUuids'
+      );
+      assert.calledOnceWithExactly(
+        mockBindings.discoverIncludedServices,
+        'peripheralUuid',
+        'serviceUuid',
+        'serviceUuids'
+      );
     });
   });
 
@@ -918,11 +960,11 @@ describe('noble', () => {
     const serviceUuid = 'serviceUuid';
     const characteristic1 = {
       uuid: 'characteristic1',
-      properties: 'properties1'
+      properties: 'properties1',
     };
     const characteristic2 = {
       uuid: 'characteristic2',
-      properties: 'properties2'
+      properties: 'properties2',
     };
     const characteristics = [characteristic1, characteristic2];
 
@@ -938,19 +980,55 @@ describe('noble', () => {
       noble._bindings.addCharacteristics = sinon.spy();
       noble.on('warning', warningCallback);
 
-      const result = noble.addCharacteristics(peripheralUuid, serviceUuid, characteristics);
+      const result = noble.addCharacteristics(
+        peripheralUuid,
+        serviceUuid,
+        characteristics
+      );
 
       assert.notCalled(warningCallback);
-      assert.calledOnceWithExactly(noble._bindings.addCharacteristics, peripheralUuid, serviceUuid, characteristics);
+      assert.calledOnceWithExactly(
+        noble._bindings.addCharacteristics,
+        peripheralUuid,
+        serviceUuid,
+        characteristics
+      );
 
       const expectedCharacteristics = [
-        new Characteristic(noble, peripheralUuid, serviceUuid, 'characteristic1', 'properties1'),
-        new Characteristic(noble, peripheralUuid, serviceUuid, 'characteristic2', 'properties2')
+        new Characteristic(
+          noble,
+          peripheralUuid,
+          serviceUuid,
+          'characteristic1',
+          'properties1'
+        ),
+        new Characteristic(
+          noble,
+          peripheralUuid,
+          serviceUuid,
+          'characteristic2',
+          'properties2'
+        ),
       ];
       should(result).deepEqual(expectedCharacteristics);
-      should(noble._services).deepEqual({ [peripheralUuid]: { [serviceUuid]: { characteristics: expectedCharacteristics } } });
-      should(noble._characteristics).deepEqual({ [peripheralUuid]: { [serviceUuid]: { characteristic1: expectedCharacteristics[0], characteristic2: expectedCharacteristics[1] } } });
-      should(noble._descriptors).deepEqual({ [peripheralUuid]: { [serviceUuid]: { characteristic1: {}, characteristic2: {} } } });
+      should(noble._services).deepEqual({
+        [peripheralUuid]: {
+          [serviceUuid]: { characteristics: expectedCharacteristics },
+        },
+      });
+      should(noble._characteristics).deepEqual({
+        [peripheralUuid]: {
+          [serviceUuid]: {
+            characteristic1: expectedCharacteristics[0],
+            characteristic2: expectedCharacteristics[1],
+          },
+        },
+      });
+      should(noble._descriptors).deepEqual({
+        [peripheralUuid]: {
+          [serviceUuid]: { characteristic1: {}, characteristic2: {} },
+        },
+      });
     });
 
     it('should not delegate to bindings', () => {
@@ -958,18 +1036,49 @@ describe('noble', () => {
 
       noble.on('warning', warningCallback);
 
-      const result = noble.addCharacteristics(peripheralUuid, serviceUuid, characteristics);
+      const result = noble.addCharacteristics(
+        peripheralUuid,
+        serviceUuid,
+        characteristics
+      );
 
       assert.notCalled(warningCallback);
 
       const expectedCharacteristics = [
-        new Characteristic(noble, peripheralUuid, serviceUuid, 'characteristic1', 'properties1'),
-        new Characteristic(noble, peripheralUuid, serviceUuid, 'characteristic2', 'properties2')
+        new Characteristic(
+          noble,
+          peripheralUuid,
+          serviceUuid,
+          'characteristic1',
+          'properties1'
+        ),
+        new Characteristic(
+          noble,
+          peripheralUuid,
+          serviceUuid,
+          'characteristic2',
+          'properties2'
+        ),
       ];
       should(result).deepEqual(expectedCharacteristics);
-      should(noble._services).deepEqual({ [peripheralUuid]: { [serviceUuid]: { characteristics: expectedCharacteristics } } });
-      should(noble._characteristics).deepEqual({ [peripheralUuid]: { [serviceUuid]: { characteristic1: expectedCharacteristics[0], characteristic2: expectedCharacteristics[1] } } });
-      should(noble._descriptors).deepEqual({ [peripheralUuid]: { [serviceUuid]: { characteristic1: {}, characteristic2: {} } } });
+      should(noble._services).deepEqual({
+        [peripheralUuid]: {
+          [serviceUuid]: { characteristics: expectedCharacteristics },
+        },
+      });
+      should(noble._characteristics).deepEqual({
+        [peripheralUuid]: {
+          [serviceUuid]: {
+            characteristic1: expectedCharacteristics[0],
+            characteristic2: expectedCharacteristics[1],
+          },
+        },
+      });
+      should(noble._descriptors).deepEqual({
+        [peripheralUuid]: {
+          [serviceUuid]: { characteristic1: {}, characteristic2: {} },
+        },
+      });
     });
 
     it('should emit warning', () => {
@@ -978,14 +1087,25 @@ describe('noble', () => {
       noble.on('warning', warningCallback);
 
       noble._services = { peripheralUuid: {} };
-      const result = noble.addCharacteristics(peripheralUuid, serviceUuid, characteristics);
+      const result = noble.addCharacteristics(
+        peripheralUuid,
+        serviceUuid,
+        characteristics
+      );
 
-      assert.calledOnceWithExactly(warningCallback, 'unknown service peripheralUuid, serviceUuid characteristics discover!');
+      assert.calledOnceWithExactly(
+        warningCallback,
+        'unknown service peripheralUuid, serviceUuid characteristics discover!'
+      );
 
       should(result).equal(undefined);
-      should(noble._services).deepEqual({ [peripheralUuid]: { } });
-      should(noble._characteristics).deepEqual({ [peripheralUuid]: { [serviceUuid]: { } } });
-      should(noble._descriptors).deepEqual({ [peripheralUuid]: { [serviceUuid]: { } } });
+      should(noble._services).deepEqual({ [peripheralUuid]: {} });
+      should(noble._characteristics).deepEqual({
+        [peripheralUuid]: { [serviceUuid]: {} },
+      });
+      should(noble._descriptors).deepEqual({
+        [peripheralUuid]: { [serviceUuid]: {} },
+      });
     });
   });
 
@@ -995,22 +1115,41 @@ describe('noble', () => {
     noble._services = {
       peripheralUuid: {
         serviceUuid: {
-          emit
-        }
-      }
+          emit,
+        },
+      },
     };
 
-    noble.onCharacteristicsDiscovered('peripheralUuid', 'serviceUuid', 'characteristics');
+    noble.onCharacteristicsDiscovered(
+      'peripheralUuid',
+      'serviceUuid',
+      'characteristics',
+      'error'
+    );
 
-    assert.calledOnceWithExactly(emit, 'characteristicsDiscovered', 'characteristics');
+    assert.calledOnceWithExactly(
+      emit,
+      'characteristicsDiscovered',
+      'characteristics',
+      'error'
+    );
   });
 
   it('discoverCharacteristics - should delegate', () => {
     noble._bindings.discoverCharacteristics = sinon.spy();
 
-    noble.discoverCharacteristics('peripheralUuid', 'serviceUuid', 'characteristicUuids');
+    noble.discoverCharacteristics(
+      'peripheralUuid',
+      'serviceUuid',
+      'characteristicUuids'
+    );
 
-    assert.calledOnceWithExactly(noble._bindings.discoverCharacteristics, 'peripheralUuid', 'serviceUuid', 'characteristicUuids');
+    assert.calledOnceWithExactly(
+      noble._bindings.discoverCharacteristics,
+      'peripheralUuid',
+      'serviceUuid',
+      'characteristicUuids'
+    );
   });
 
   describe('onCharacteristicsDiscover', () => {
@@ -1024,9 +1163,16 @@ describe('noble', () => {
       noble.on('warning', warningCallback);
 
       noble._services[peripheralUuid] = {};
-      noble.onCharacteristicsDiscover(peripheralUuid, serviceUuid, characteristics);
+      noble.onCharacteristicsDiscover(
+        peripheralUuid,
+        serviceUuid,
+        characteristics
+      );
 
-      assert.calledOnceWithExactly(warningCallback, 'unknown peripheral peripheralUuid, serviceUuid characteristics discover!');
+      assert.calledOnceWithExactly(
+        warningCallback,
+        'unknown peripheral peripheralUuid, serviceUuid characteristics discover!'
+      );
     });
 
     it('should emit characteristicsDiscover and store characteristics', () => {
@@ -1037,7 +1183,7 @@ describe('noble', () => {
       const serviceUuid = 'serviceUuid';
       const characteristics = [
         { uuid: 'characteristic1', properties: 'properties1' },
-        { uuid: 'characteristic2', properties: 'properties2' }
+        { uuid: 'characteristic2', properties: 'properties2' },
       ];
 
       noble._services = { [peripheralUuid]: { [serviceUuid]: { emit } } };
@@ -1046,30 +1192,56 @@ describe('noble', () => {
 
       noble.on('warning', warningCallback);
 
-      noble.onCharacteristicsDiscover(peripheralUuid, serviceUuid, characteristics);
+      noble.onCharacteristicsDiscover(
+        peripheralUuid,
+        serviceUuid,
+        characteristics
+      );
 
       const expectedCharacteristics = [
-        new Characteristic(noble, peripheralUuid, serviceUuid, characteristics[0].uuid, characteristics[0].properties),
-        new Characteristic(noble, peripheralUuid, serviceUuid, characteristics[1].uuid, characteristics[1].properties)
+        new Characteristic(
+          noble,
+          peripheralUuid,
+          serviceUuid,
+          characteristics[0].uuid,
+          characteristics[0].properties
+        ),
+        new Characteristic(
+          noble,
+          peripheralUuid,
+          serviceUuid,
+          characteristics[1].uuid,
+          characteristics[1].properties
+        ),
       ];
 
-      assert.calledOnceWithExactly(emit, 'characteristicsDiscover', expectedCharacteristics);
+      assert.calledOnceWithExactly(
+        emit,
+        'characteristicsDiscover',
+        expectedCharacteristics
+      );
       assert.notCalled(warningCallback);
 
       should(noble._services).deepEqual({
         [peripheralUuid]: {
           [serviceUuid]: {
-            emit, characteristics: expectedCharacteristics
-          }
-        }
+            emit,
+            characteristics: expectedCharacteristics,
+          },
+        },
       });
       should(noble._characteristics).deepEqual({
         [peripheralUuid]: {
-          [serviceUuid]: { characteristic1: expectedCharacteristics[0], characteristic2: expectedCharacteristics[1] }
-        }
+          [serviceUuid]: {
+            characteristic1: expectedCharacteristics[0],
+            characteristic2: expectedCharacteristics[1],
+          },
+        },
       });
       should(noble._descriptors).deepEqual({
-        [peripheralUuid]: { [serviceUuid]: { characteristic1: {}, characteristic2: {} } }
+        [peripheralUuid]: {
+          [serviceUuid]: { characteristic1: {}, characteristic2: {} },
+        },
       });
     });
   });
@@ -1077,7 +1249,12 @@ describe('noble', () => {
   it('read - should delegate to bindings', () => {
     noble._bindings.read = sinon.spy();
     noble.read('peripheralUuid', 'serviceUuid', 'characteristicUuid');
-    assert.calledOnceWithExactly(noble._bindings.read, 'peripheralUuid', 'serviceUuid', 'characteristicUuid');
+    assert.calledOnceWithExactly(
+      noble._bindings.read,
+      'peripheralUuid',
+      'serviceUuid',
+      'characteristicUuid'
+    );
   });
 
   describe('onRead', () => {
@@ -1087,13 +1264,21 @@ describe('noble', () => {
 
       noble._characteristics = {
         peripheralUuid: {
-          serviceUuid: {
-          }
-        }
+          serviceUuid: {},
+        },
       };
-      noble.onRead('peripheralUuid', 'serviceUuid', 'characteristicUuid', 'data', 'isNotification');
+      noble.onRead(
+        'peripheralUuid',
+        'serviceUuid',
+        'characteristicUuid',
+        'data',
+        'isNotification'
+      );
 
-      assert.calledOnceWithExactly(warningCallback, 'unknown peripheral peripheralUuid, serviceUuid, characteristicUuid read!');
+      assert.calledOnceWithExactly(
+        warningCallback,
+        'unknown peripheral peripheralUuid, serviceUuid, characteristicUuid read!'
+      );
     });
 
     it('should emit data and read', () => {
@@ -1106,12 +1291,18 @@ describe('noble', () => {
         peripheralUuid: {
           serviceUuid: {
             characteristicUuid: {
-              emit
-            }
-          }
-        }
+              emit,
+            },
+          },
+        },
       };
-      noble.onRead('peripheralUuid', 'serviceUuid', 'characteristicUuid', 'dataArg', 'isNotification');
+      noble.onRead(
+        'peripheralUuid',
+        'serviceUuid',
+        'characteristicUuid',
+        'dataArg',
+        'isNotification'
+      );
 
       assert.notCalled(warningCallback);
       assert.callCount(emit, 2);
@@ -1122,8 +1313,21 @@ describe('noble', () => {
 
   it('write - should delegate to bindings', () => {
     noble._bindings.write = sinon.spy();
-    noble.write('peripheralUuid', 'serviceUuid', 'characteristicUuid', 'dataArg', 'isNotification');
-    assert.calledOnceWithExactly(noble._bindings.write, 'peripheralUuid', 'serviceUuid', 'characteristicUuid', 'dataArg', 'isNotification');
+    noble.write(
+      'peripheralUuid',
+      'serviceUuid',
+      'characteristicUuid',
+      'dataArg',
+      'isNotification'
+    );
+    assert.calledOnceWithExactly(
+      noble._bindings.write,
+      'peripheralUuid',
+      'serviceUuid',
+      'characteristicUuid',
+      'dataArg',
+      'isNotification'
+    );
   });
 
   describe('onWrite', () => {
@@ -1133,13 +1337,15 @@ describe('noble', () => {
 
       noble._characteristics = {
         peripheralUuid: {
-          serviceUuid: {
-          }
-        }
+          serviceUuid: {},
+        },
       };
       noble.onWrite('peripheralUuid', 'serviceUuid', 'characteristicUuid');
 
-      assert.calledOnceWithExactly(warningCallback, 'unknown peripheral peripheralUuid, serviceUuid, characteristicUuid write!');
+      assert.calledOnceWithExactly(
+        warningCallback,
+        'unknown peripheral peripheralUuid, serviceUuid, characteristicUuid write!'
+      );
     });
 
     it('should emit write', () => {
@@ -1152,10 +1358,10 @@ describe('noble', () => {
         peripheralUuid: {
           serviceUuid: {
             characteristicUuid: {
-              emit
-            }
-          }
-        }
+              emit,
+            },
+          },
+        },
       };
       noble.onWrite('peripheralUuid', 'serviceUuid', 'characteristicUuid');
 
@@ -1166,8 +1372,19 @@ describe('noble', () => {
 
   it('broadcast - should delegate to bindings', () => {
     noble._bindings.broadcast = sinon.spy();
-    noble.broadcast('peripheralUuid', 'serviceUuid', 'characteristicUuid', 'broadcast');
-    assert.calledOnceWithExactly(noble._bindings.broadcast, 'peripheralUuid', 'serviceUuid', 'characteristicUuid', 'broadcast');
+    noble.broadcast(
+      'peripheralUuid',
+      'serviceUuid',
+      'characteristicUuid',
+      'broadcast'
+    );
+    assert.calledOnceWithExactly(
+      noble._bindings.broadcast,
+      'peripheralUuid',
+      'serviceUuid',
+      'characteristicUuid',
+      'broadcast'
+    );
   });
 
   describe('onBroadcast', () => {
@@ -1177,13 +1394,20 @@ describe('noble', () => {
 
       noble._characteristics = {
         peripheralUuid: {
-          serviceUuid: {
-          }
-        }
+          serviceUuid: {},
+        },
       };
-      noble.onBroadcast('peripheralUuid', 'serviceUuid', 'characteristicUuid', 'state');
+      noble.onBroadcast(
+        'peripheralUuid',
+        'serviceUuid',
+        'characteristicUuid',
+        'state'
+      );
 
-      assert.calledOnceWithExactly(warningCallback, 'unknown peripheral peripheralUuid, serviceUuid, characteristicUuid broadcast!');
+      assert.calledOnceWithExactly(
+        warningCallback,
+        'unknown peripheral peripheralUuid, serviceUuid, characteristicUuid broadcast!'
+      );
     });
 
     it('should emit broadcast', () => {
@@ -1196,12 +1420,17 @@ describe('noble', () => {
         peripheralUuid: {
           serviceUuid: {
             characteristicUuid: {
-              emit
-            }
-          }
-        }
+              emit,
+            },
+          },
+        },
       };
-      noble.onBroadcast('peripheralUuid', 'serviceUuid', 'characteristicUuid', 'state');
+      noble.onBroadcast(
+        'peripheralUuid',
+        'serviceUuid',
+        'characteristicUuid',
+        'state'
+      );
 
       assert.notCalled(warningCallback);
       assert.calledOnceWithExactly(emit, 'broadcast', 'state');
@@ -1210,8 +1439,19 @@ describe('noble', () => {
 
   it('notify - should delegate to bindings', () => {
     noble._bindings.notify = sinon.spy();
-    noble.notify('peripheralUuid', 'serviceUuid', 'characteristicUuid', 'notify');
-    assert.calledOnceWithExactly(noble._bindings.notify, 'peripheralUuid', 'serviceUuid', 'characteristicUuid', 'notify');
+    noble.notify(
+      'peripheralUuid',
+      'serviceUuid',
+      'characteristicUuid',
+      'notify'
+    );
+    assert.calledOnceWithExactly(
+      noble._bindings.notify,
+      'peripheralUuid',
+      'serviceUuid',
+      'characteristicUuid',
+      'notify'
+    );
   });
 
   describe('onNotify', () => {
@@ -1221,13 +1461,20 @@ describe('noble', () => {
 
       noble._characteristics = {
         peripheralUuid: {
-          serviceUuid: {
-          }
-        }
+          serviceUuid: {},
+        },
       };
-      noble.onNotify('peripheralUuid', 'serviceUuid', 'characteristicUuid', 'state');
+      noble.onNotify(
+        'peripheralUuid',
+        'serviceUuid',
+        'characteristicUuid',
+        'state'
+      );
 
-      assert.calledOnceWithExactly(warningCallback, 'unknown peripheral peripheralUuid, serviceUuid, characteristicUuid notify!');
+      assert.calledOnceWithExactly(
+        warningCallback,
+        'unknown peripheral peripheralUuid, serviceUuid, characteristicUuid notify!'
+      );
     });
 
     it('should emit notify', () => {
@@ -1240,12 +1487,17 @@ describe('noble', () => {
         peripheralUuid: {
           serviceUuid: {
             characteristicUuid: {
-              emit
-            }
-          }
-        }
+              emit,
+            },
+          },
+        },
       };
-      noble.onNotify('peripheralUuid', 'serviceUuid', 'characteristicUuid', 'state');
+      noble.onNotify(
+        'peripheralUuid',
+        'serviceUuid',
+        'characteristicUuid',
+        'state'
+      );
 
       assert.notCalled(warningCallback);
       assert.calledOnceWithExactly(emit, 'notify', 'state');
@@ -1255,9 +1507,18 @@ describe('noble', () => {
   it('discoverDescriptors - should delegate', () => {
     noble._bindings.discoverDescriptors = sinon.spy();
 
-    noble.discoverDescriptors('peripheralUuid', 'serviceUuid', 'characteristicUuid');
+    noble.discoverDescriptors(
+      'peripheralUuid',
+      'serviceUuid',
+      'characteristicUuid'
+    );
 
-    assert.calledOnceWithExactly(noble._bindings.discoverDescriptors, 'peripheralUuid', 'serviceUuid', 'characteristicUuid');
+    assert.calledOnceWithExactly(
+      noble._bindings.discoverDescriptors,
+      'peripheralUuid',
+      'serviceUuid',
+      'characteristicUuid'
+    );
   });
 
   describe('onDescriptorsDiscover', () => {
@@ -1272,11 +1533,19 @@ describe('noble', () => {
       noble.on('warning', warningCallback);
 
       noble._characteristics[peripheralUuid] = {
-        [serviceUuid]: {}
+        [serviceUuid]: {},
       };
-      noble.onDescriptorsDiscover(peripheralUuid, serviceUuid, characteristicUuid, descriptors);
+      noble.onDescriptorsDiscover(
+        peripheralUuid,
+        serviceUuid,
+        characteristicUuid,
+        descriptors
+      );
 
-      assert.calledOnceWithExactly(warningCallback, 'unknown peripheral peripheralUuid, serviceUuid, characteristicUuid descriptors discover!');
+      assert.calledOnceWithExactly(
+        warningCallback,
+        'unknown peripheral peripheralUuid, serviceUuid, characteristicUuid descriptors discover!'
+      );
     });
 
     it('should emit characteristicsDiscover and store characteristics', () => {
@@ -1288,34 +1557,81 @@ describe('noble', () => {
       const characteristicUuid = 'characteristicUuid';
       const descriptors = ['descriptor1', 'descriptor2'];
 
-      noble._characteristics = { [peripheralUuid]: { [serviceUuid]: { [characteristicUuid]: { emit } } } };
-      noble._descriptors = { [peripheralUuid]: { [serviceUuid]: { [characteristicUuid]: {} } } };
+      noble._characteristics = {
+        [peripheralUuid]: { [serviceUuid]: { [characteristicUuid]: { emit } } },
+      };
+      noble._descriptors = {
+        [peripheralUuid]: { [serviceUuid]: { [characteristicUuid]: {} } },
+      };
 
       noble.on('warning', warningCallback);
 
-      noble.onDescriptorsDiscover(peripheralUuid, serviceUuid, characteristicUuid, descriptors);
+      noble.onDescriptorsDiscover(
+        peripheralUuid,
+        serviceUuid,
+        characteristicUuid,
+        descriptors
+      );
 
       const expectedDescriptors = [
-        new Descriptor(noble, peripheralUuid, serviceUuid, characteristicUuid, descriptors[0]),
-        new Descriptor(noble, peripheralUuid, serviceUuid, characteristicUuid, descriptors[1])
+        new Descriptor(
+          noble,
+          peripheralUuid,
+          serviceUuid,
+          characteristicUuid,
+          descriptors[0]
+        ),
+        new Descriptor(
+          noble,
+          peripheralUuid,
+          serviceUuid,
+          characteristicUuid,
+          descriptors[1]
+        ),
       ];
 
-      assert.calledOnceWithExactly(emit, 'descriptorsDiscover', expectedDescriptors);
+      assert.calledOnceWithExactly(
+        emit,
+        'descriptorsDiscover',
+        expectedDescriptors
+      );
       assert.notCalled(warningCallback);
 
       should(noble._characteristics).deepEqual({
-        [peripheralUuid]: { [serviceUuid]: { [characteristicUuid]: { emit, descriptors: expectedDescriptors } } }
+        [peripheralUuid]: {
+          [serviceUuid]: {
+            [characteristicUuid]: { emit, descriptors: expectedDescriptors },
+          },
+        },
       });
       should(noble._descriptors).deepEqual({
-        [peripheralUuid]: { [serviceUuid]: { [characteristicUuid]: { descriptor1: expectedDescriptors[0], descriptor2: expectedDescriptors[1] } } }
+        [peripheralUuid]: {
+          [serviceUuid]: {
+            [characteristicUuid]: {
+              descriptor1: expectedDescriptors[0],
+              descriptor2: expectedDescriptors[1],
+            },
+          },
+        },
       });
     });
   });
 
   it('readValue - should delegate to bindings', () => {
     noble._bindings.readValue = sinon.spy();
-    noble.readValue('peripheralUuid', 'serviceUuid', 'characteristicUuid', 'descriptorUuid');
-    assert.calledOnceWithExactly(noble._bindings.readValue, 'peripheralUuid', 'serviceUuid', 'characteristicUuid', 'descriptorUuid');
+    noble.readValue(
+      'peripheralUuid',
+      'serviceUuid',
+      'characteristicUuid',
+      'descriptorUuid'
+    );
+    assert.calledOnceWithExactly(
+      noble._bindings.readValue,
+      'peripheralUuid',
+      'serviceUuid',
+      'characteristicUuid',
+      'descriptorUuid'
+    );
   });
 
   describe('onValueRead', () => {
@@ -1326,13 +1642,22 @@ describe('noble', () => {
       noble._descriptors = {
         peripheralUuid: {
           serviceUuid: {
-            characteristicUuid: {}
-          }
-        }
+            characteristicUuid: {},
+          },
+        },
       };
-      noble.onValueRead('peripheralUuid', 'serviceUuid', 'characteristicUuid', 'descriptorUuid', 'data');
+      noble.onValueRead(
+        'peripheralUuid',
+        'serviceUuid',
+        'characteristicUuid',
+        'descriptorUuid',
+        'data'
+      );
 
-      assert.calledOnceWithExactly(warningCallback, 'unknown peripheral peripheralUuid, serviceUuid, characteristicUuid, descriptorUuid value read!');
+      assert.calledOnceWithExactly(
+        warningCallback,
+        'unknown peripheral peripheralUuid, serviceUuid, characteristicUuid, descriptorUuid value read!'
+      );
     });
 
     it('should emit valueRead', () => {
@@ -1346,13 +1671,19 @@ describe('noble', () => {
           serviceUuid: {
             characteristicUuid: {
               descriptorUuid: {
-                emit
-              }
-            }
-          }
-        }
+                emit,
+              },
+            },
+          },
+        },
       };
-      noble.onValueRead('peripheralUuid', 'serviceUuid', 'characteristicUuid', 'descriptorUuid', 'data');
+      noble.onValueRead(
+        'peripheralUuid',
+        'serviceUuid',
+        'characteristicUuid',
+        'descriptorUuid',
+        'data'
+      );
 
       assert.notCalled(warningCallback);
       assert.calledOnceWithExactly(emit, 'valueRead', 'data');
@@ -1361,8 +1692,21 @@ describe('noble', () => {
 
   it('writeValue - should delegate to bindings', () => {
     noble._bindings.writeValue = sinon.spy();
-    noble.writeValue('peripheralUuid', 'serviceUuid', 'characteristicUuid', 'descriptorUuid', 'data');
-    assert.calledOnceWithExactly(noble._bindings.writeValue, 'peripheralUuid', 'serviceUuid', 'characteristicUuid', 'descriptorUuid', 'data');
+    noble.writeValue(
+      'peripheralUuid',
+      'serviceUuid',
+      'characteristicUuid',
+      'descriptorUuid',
+      'data'
+    );
+    assert.calledOnceWithExactly(
+      noble._bindings.writeValue,
+      'peripheralUuid',
+      'serviceUuid',
+      'characteristicUuid',
+      'descriptorUuid',
+      'data'
+    );
   });
 
   describe('onValueWrite', () => {
@@ -1373,13 +1717,21 @@ describe('noble', () => {
       noble._descriptors = {
         peripheralUuid: {
           serviceUuid: {
-            characteristicUuid: {}
-          }
-        }
+            characteristicUuid: {},
+          },
+        },
       };
-      noble.onValueWrite('peripheralUuid', 'serviceUuid', 'characteristicUuid', 'descriptorUuid');
+      noble.onValueWrite(
+        'peripheralUuid',
+        'serviceUuid',
+        'characteristicUuid',
+        'descriptorUuid'
+      );
 
-      assert.calledOnceWithExactly(warningCallback, 'unknown peripheral peripheralUuid, serviceUuid, characteristicUuid, descriptorUuid value write!');
+      assert.calledOnceWithExactly(
+        warningCallback,
+        'unknown peripheral peripheralUuid, serviceUuid, characteristicUuid, descriptorUuid value write!'
+      );
     });
 
     it('should emit valueWrite', () => {
@@ -1393,13 +1745,18 @@ describe('noble', () => {
           serviceUuid: {
             characteristicUuid: {
               descriptorUuid: {
-                emit
-              }
-            }
-          }
-        }
+                emit,
+              },
+            },
+          },
+        },
       };
-      noble.onValueWrite('peripheralUuid', 'serviceUuid', 'characteristicUuid', 'descriptorUuid');
+      noble.onValueWrite(
+        'peripheralUuid',
+        'serviceUuid',
+        'characteristicUuid',
+        'descriptorUuid'
+      );
 
       assert.notCalled(warningCallback);
       assert.calledOnceWithExactly(emit, 'valueWrite');
@@ -1409,7 +1766,11 @@ describe('noble', () => {
   it('readHandle - should delegate to bindings', () => {
     noble._bindings.readHandle = sinon.spy();
     noble.readHandle('peripheralUuid', 'handle');
-    assert.calledOnceWithExactly(noble._bindings.readHandle, 'peripheralUuid', 'handle');
+    assert.calledOnceWithExactly(
+      noble._bindings.readHandle,
+      'peripheralUuid',
+      'handle'
+    );
   });
 
   describe('onHandleRead', () => {
@@ -1417,11 +1778,13 @@ describe('noble', () => {
       const warningCallback = sinon.spy();
       noble.on('warning', warningCallback);
 
-      noble._peripherals = {
-      };
+      noble._peripherals = {};
       noble.onHandleRead('peripheralUuid', 'nameOfHandle', 'data');
 
-      assert.calledOnceWithExactly(warningCallback, 'unknown peripheral peripheralUuid handle read!');
+      assert.calledOnceWithExactly(
+        warningCallback,
+        'unknown peripheral peripheralUuid handle read!'
+      );
     });
 
     it('should emit handleWrite', () => {
@@ -1432,8 +1795,8 @@ describe('noble', () => {
 
       noble._peripherals = {
         peripheralUuid: {
-          emit
-        }
+          emit,
+        },
       };
       noble.onHandleRead('peripheralUuid', 'nameOfHandle', 'data');
 
@@ -1445,7 +1808,13 @@ describe('noble', () => {
   it('writeHandle - should delegate to bindings', () => {
     noble._bindings.writeHandle = sinon.spy();
     noble.writeHandle('peripheralUuid', 'handle', 'data', 'withoutResponse');
-    assert.calledOnceWithExactly(noble._bindings.writeHandle, 'peripheralUuid', 'handle', 'data', 'withoutResponse');
+    assert.calledOnceWithExactly(
+      noble._bindings.writeHandle,
+      'peripheralUuid',
+      'handle',
+      'data',
+      'withoutResponse'
+    );
   });
 
   describe('onHandleWrite', () => {
@@ -1453,11 +1822,13 @@ describe('noble', () => {
       const warningCallback = sinon.spy();
       noble.on('warning', warningCallback);
 
-      noble._peripherals = {
-      };
+      noble._peripherals = {};
       noble.onHandleWrite('peripheralUuid', 'nameOfHandle');
 
-      assert.calledOnceWithExactly(warningCallback, 'unknown peripheral peripheralUuid handle write!');
+      assert.calledOnceWithExactly(
+        warningCallback,
+        'unknown peripheral peripheralUuid handle write!'
+      );
     });
 
     it('should emit handleRead', () => {
@@ -1468,8 +1839,8 @@ describe('noble', () => {
 
       noble._peripherals = {
         peripheralUuid: {
-          emit
-        }
+          emit,
+        },
       };
       noble.onHandleWrite('peripheralUuid', 'nameOfHandle');
 
@@ -1483,11 +1854,13 @@ describe('noble', () => {
       const warningCallback = sinon.spy();
       noble.on('warning', warningCallback);
 
-      noble._peripherals = {
-      };
+      noble._peripherals = {};
       noble.onHandleNotify('peripheralUuid', 'nameOfHandle', 'data');
 
-      assert.calledOnceWithExactly(warningCallback, 'unknown peripheral peripheralUuid handle notify!');
+      assert.calledOnceWithExactly(
+        warningCallback,
+        'unknown peripheral peripheralUuid handle notify!'
+      );
     });
 
     it('should emit handleNotify', () => {
@@ -1498,19 +1871,24 @@ describe('noble', () => {
 
       noble._peripherals = {
         peripheralUuid: {
-          emit
-        }
+          emit,
+        },
       };
       noble.onHandleNotify('peripheralUuid', 'nameOfHandle', 'data');
 
       assert.notCalled(warningCallback);
-      assert.calledOnceWithExactly(emit, 'handleNotify', 'nameOfHandle', 'data');
+      assert.calledOnceWithExactly(
+        emit,
+        'handleNotify',
+        'nameOfHandle',
+        'data'
+      );
     });
   });
 
   it('onMtu - should update peripheral mtu when set before already', () => {
     const peripheral = {
-      mtu: 234
+      mtu: 234,
     };
 
     noble._peripherals = { uuid: peripheral };
@@ -1521,7 +1899,7 @@ describe('noble', () => {
 
   it('onMtu - should update peripheral mtu too when empty', () => {
     const peripheral = {
-      mtu: null
+      mtu: null,
     };
 
     noble._peripherals = { uuid: peripheral };
@@ -1534,7 +1912,7 @@ describe('noble', () => {
     it('should emit connected on existing peripheral', () => {
       const emit = sinon.spy();
       noble._services = {
-        uuid: { serviceUuid: { emit } }
+        uuid: { serviceUuid: { emit } },
       };
 
       const warningCallback = sinon.spy();
@@ -1542,11 +1920,15 @@ describe('noble', () => {
       noble.on('warning', warningCallback);
       noble.onIncludedServicesDiscover('uuid', 'serviceUuid', 'serviceUuids');
 
-      assert.calledOnceWithExactly(emit, 'includedServicesDiscover', 'serviceUuids');
+      assert.calledOnceWithExactly(
+        emit,
+        'includedServicesDiscover',
+        'serviceUuids'
+      );
       assert.notCalled(warningCallback);
 
       should(noble._services).deepEqual({
-        uuid: { serviceUuid: { includedServiceUuids: 'serviceUuids', emit } }
+        uuid: { serviceUuid: { includedServiceUuids: 'serviceUuids', emit } },
       });
     });
 
@@ -1558,7 +1940,10 @@ describe('noble', () => {
       noble.on('warning', warningCallback);
       noble.onIncludedServicesDiscover('uuid', 'serviceUuid', 'serviceUuids');
 
-      assert.calledOnceWithExactly(warningCallback, 'unknown peripheral uuid, serviceUuid included services discover!');
+      assert.calledOnceWithExactly(
+        warningCallback,
+        'unknown peripheral uuid, serviceUuid included services discover!'
+      );
 
       should(noble._services).deepEqual({ uuid: {} });
     });

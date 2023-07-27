@@ -31,7 +31,9 @@ describe('service', () => {
 
   describe('toString', () => {
     it('should be uuid, name, type, includedServiceUuids', () => {
-      should(service.toString()).equal('{"uuid":"mock-uuid","name":null,"type":null,"includedServiceUuids":null}');
+      should(service.toString()).equal(
+        '{"uuid":"mock-uuid","name":null,"type":null,"includedServiceUuids":null}'
+      );
     });
   });
 
@@ -46,13 +48,23 @@ describe('service', () => {
 
     it('should delegate to noble', () => {
       service.discoverIncludedServices();
-      assert.calledOnceWithExactly(mockNoble.discoverIncludedServices, mockPeripheralId, mockUuid, undefined);
+      assert.calledOnceWithExactly(
+        mockNoble.discoverIncludedServices,
+        mockPeripheralId,
+        mockUuid,
+        undefined
+      );
     });
 
     it('should delegate to noble, with uuids', () => {
       const mockUuids = [];
       service.discoverIncludedServices(mockUuids);
-      assert.calledOnceWithExactly(mockNoble.discoverIncludedServices, mockPeripheralId, mockUuid, mockUuids);
+      assert.calledOnceWithExactly(
+        mockNoble.discoverIncludedServices,
+        mockPeripheralId,
+        mockUuid,
+        mockUuids
+      );
     });
 
     it('should callback', () => {
@@ -62,7 +74,12 @@ describe('service', () => {
       service.emit('includedServicesDiscover');
 
       assert.calledOnceWithExactly(callback, null, undefined);
-      assert.calledOnceWithExactly(mockNoble.discoverIncludedServices, mockPeripheralId, mockUuid, null);
+      assert.calledOnceWithExactly(
+        mockNoble.discoverIncludedServices,
+        mockPeripheralId,
+        mockUuid,
+        null
+      );
     });
 
     it('should callback with data', () => {
@@ -73,7 +90,12 @@ describe('service', () => {
       service.emit('includedServicesDiscover', mockIncludedServiceUuids);
 
       assert.calledOnceWithExactly(callback, null, mockIncludedServiceUuids);
-      assert.calledOnceWithExactly(mockNoble.discoverIncludedServices, mockPeripheralId, mockUuid, null);
+      assert.calledOnceWithExactly(
+        mockNoble.discoverIncludedServices,
+        mockPeripheralId,
+        mockUuid,
+        null
+      );
     });
   });
 
@@ -91,7 +113,12 @@ describe('service', () => {
       service.emit('includedServicesDiscover');
 
       should(promise).resolvedWith(undefined);
-      assert.calledOnceWithExactly(mockNoble.discoverIncludedServices, mockPeripheralId, mockUuid, undefined);
+      assert.calledOnceWithExactly(
+        mockNoble.discoverIncludedServices,
+        mockPeripheralId,
+        mockUuid,
+        undefined
+      );
     });
 
     it('should delegate to noble, with uuids', async () => {
@@ -100,7 +127,12 @@ describe('service', () => {
       service.emit('includedServicesDiscover');
 
       should(promise).resolvedWith(undefined);
-      assert.calledOnceWithExactly(mockNoble.discoverIncludedServices, mockPeripheralId, mockUuid, mockUuids);
+      assert.calledOnceWithExactly(
+        mockNoble.discoverIncludedServices,
+        mockPeripheralId,
+        mockUuid,
+        mockUuids
+      );
     });
 
     it('should resolve with data', async () => {
@@ -110,7 +142,12 @@ describe('service', () => {
       service.emit('includedServicesDiscover', mockIncludedServiceUuids);
 
       should(promise).resolvedWith(mockIncludedServiceUuids);
-      assert.calledOnceWithExactly(mockNoble.discoverIncludedServices, mockPeripheralId, mockUuid, undefined);
+      assert.calledOnceWithExactly(
+        mockNoble.discoverIncludedServices,
+        mockPeripheralId,
+        mockUuid,
+        undefined
+      );
     });
   });
 
@@ -125,13 +162,23 @@ describe('service', () => {
 
     it('should delegate to noble', () => {
       service.discoverCharacteristics();
-      assert.calledOnceWithExactly(mockNoble.discoverCharacteristics, mockPeripheralId, mockUuid, undefined);
+      assert.calledOnceWithExactly(
+        mockNoble.discoverCharacteristics,
+        mockPeripheralId,
+        mockUuid,
+        undefined
+      );
     });
 
     it('should delegate to noble, with uuids', () => {
       const mockUuids = [];
       service.discoverCharacteristics(mockUuids);
-      assert.calledOnceWithExactly(mockNoble.discoverCharacteristics, mockPeripheralId, mockUuid, mockUuids);
+      assert.calledOnceWithExactly(
+        mockNoble.discoverCharacteristics,
+        mockPeripheralId,
+        mockUuid,
+        mockUuids
+      );
     });
 
     it('should callback', () => {
@@ -140,8 +187,13 @@ describe('service', () => {
       service.discoverCharacteristics(null, callback);
       service.emit('characteristicsDiscover');
 
-      assert.calledOnceWithExactly(callback, null, undefined);
-      assert.calledOnceWithExactly(mockNoble.discoverCharacteristics, mockPeripheralId, mockUuid, null);
+      assert.calledOnceWithExactly(callback, undefined, undefined);
+      assert.calledOnceWithExactly(
+        mockNoble.discoverCharacteristics,
+        mockPeripheralId,
+        mockUuid,
+        null
+      );
     });
 
     it('should callback with data', () => {
@@ -151,8 +203,13 @@ describe('service', () => {
       service.discoverCharacteristics(null, callback);
       service.emit('characteristicsDiscover', mockCharacteristics);
 
-      assert.calledOnceWithExactly(callback, null, mockCharacteristics);
-      assert.calledOnceWithExactly(mockNoble.discoverCharacteristics, mockPeripheralId, mockUuid, null);
+      assert.calledOnceWithExactly(callback, undefined, mockCharacteristics);
+      assert.calledOnceWithExactly(
+        mockNoble.discoverCharacteristics,
+        mockPeripheralId,
+        mockUuid,
+        null
+      );
     });
   });
 
@@ -170,7 +227,12 @@ describe('service', () => {
       service.emit('characteristicsDiscover');
 
       should(promise).resolvedWith(undefined);
-      assert.calledOnceWithExactly(mockNoble.discoverCharacteristics, mockPeripheralId, mockUuid, undefined);
+      assert.calledOnceWithExactly(
+        mockNoble.discoverCharacteristics,
+        mockPeripheralId,
+        mockUuid,
+        undefined
+      );
     });
 
     it('should delegate to noble, with uuids', async () => {
@@ -179,7 +241,12 @@ describe('service', () => {
       service.emit('characteristicsDiscover');
 
       should(promise).resolvedWith(undefined);
-      assert.calledOnceWithExactly(mockNoble.discoverCharacteristics, mockPeripheralId, mockUuid, mockUuids);
+      assert.calledOnceWithExactly(
+        mockNoble.discoverCharacteristics,
+        mockPeripheralId,
+        mockUuid,
+        mockUuids
+      );
     });
 
     it('should resolve with data', async () => {
@@ -189,7 +256,12 @@ describe('service', () => {
       service.emit('characteristicsDiscover', mockCharacteristics);
 
       should(promise).resolvedWith(mockCharacteristics);
-      assert.calledOnceWithExactly(mockNoble.discoverCharacteristics, mockPeripheralId, mockUuid, undefined);
+      assert.calledOnceWithExactly(
+        mockNoble.discoverCharacteristics,
+        mockPeripheralId,
+        mockUuid,
+        undefined
+      );
     });
   });
 });

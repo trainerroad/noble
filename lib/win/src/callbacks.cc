@@ -13,7 +13,7 @@
 #define _n(val) Napi::Number::New(env, val)
 #define _u(str) toUuid(env, str)
 
-Napi::String toUuid(Napi::Env& env, const std::string& uuid)
+Napi::String toUuid(Napi::Env &env, const std::string &uuid)
 {
     std::string str(uuid);
     str.erase(std::remove(str.begin(), str.end(), '-'), str.end());
@@ -21,7 +21,7 @@ Napi::String toUuid(Napi::Env& env, const std::string& uuid)
     return _s(str);
 }
 
-Napi::String toAddressType(Napi::Env& env, const AddressType& type)
+Napi::String toAddressType(Napi::Env &env, const AddressType &type)
 {
     if (type == PUBLIC)
     {
@@ -34,7 +34,7 @@ Napi::String toAddressType(Napi::Env& env, const AddressType& type)
     return _s("unknown");
 }
 
-Napi::Buffer<uint8_t> toBuffer(Napi::Env& env, const Data& data)
+Napi::Buffer<uint8_t> toBuffer(Napi::Env &env, const Data &data)
 {
     if (data.empty())
     {
@@ -43,7 +43,7 @@ Napi::Buffer<uint8_t> toBuffer(Napi::Env& env, const Data& data)
     return Napi::Buffer<uint8_t>::Copy(env, &data[0], data.size());
 }
 
-Napi::Array toUuidArray(Napi::Env& env, const std::vector<std::string>& data)
+Napi::Array toUuidArray(Napi::Env &env, const std::vector<std::string> &data)
 {
     if (data.empty())
     {
@@ -57,7 +57,7 @@ Napi::Array toUuidArray(Napi::Env& env, const std::vector<std::string>& data)
     return arr;
 }
 
-Napi::Array toArray(Napi::Env& env, const std::vector<std::string>& data)
+Napi::Array toArray(Napi::Env &env, const std::vector<std::string> &data)
 {
     if (data.empty())
     {
@@ -71,28 +71,28 @@ Napi::Array toArray(Napi::Env& env, const std::vector<std::string>& data)
     return arr;
 }
 
-void Emit::Wrap(const Napi::Value& receiver, const Napi::Function& callback)
+void Emit::Wrap(const Napi::Value &receiver, const Napi::Function &callback)
 {
     mCallback = std::make_shared<ThreadSafeCallback>(receiver, callback);
 }
 
-void Emit::RadioState(const std::string& state)
+void Emit::RadioState(const std::string &state)
 {
-    mCallback->call([state](Napi::Env env, std::vector<napi_value>& args) {
+    mCallback->call([state](Napi::Env env, std::vector<napi_value> &args)
+                    {
         // emit('stateChange', state);
-        args = { _s("stateChange"), _s(state) };
-    });
+        args = { _s("stateChange"), _s(state) }; });
 }
 
 void Emit::ScanState(bool start)
 {
-    mCallback->call([start](Napi::Env env, std::vector<napi_value>& args) {
+    mCallback->call([start](Napi::Env env, std::vector<napi_value> &args)
+                    {
         // emit('scanStart') emit('scanStop')
-        args = { _s(start ? "scanStart" : "scanStop") };
-    });
+        args = { _s(start ? "scanStart" : "scanStop") }; });
 }
 
-void Emit::Scan(const std::string& uuid, int rssi, const Peripheral& peripheral)
+void Emit::Scan(const std::string &uuid, int rssi, const Peripheral &peripheral)
 {
     auto address = peripheral.address;
     auto addressType = peripheral.addressType;
@@ -104,7 +104,8 @@ void Emit::Scan(const std::string& uuid, int rssi, const Peripheral& peripheral)
     auto serviceUuids = peripheral.serviceUuids;
     mCallback->call([uuid, rssi, address, addressType, connectable, name, txPowerLevel,
                      manufacturerData, serviceData,
-                     serviceUuids](Napi::Env env, std::vector<napi_value>& args) {
+                     serviceUuids](Napi::Env env, std::vector<napi_value> &args)
+                    {
         Napi::Object advertisment = Napi::Object::New(env);
         advertisment.Set(_s("localName"), _s(name));
         advertisment.Set(_s("txPowerLevel"), txPowerLevel);
@@ -122,59 +123,60 @@ void Emit::Scan(const std::string& uuid, int rssi, const Peripheral& peripheral)
         advertisment.Set(_s("serviceUuids"), toUuidArray(env, serviceUuids));
         // emit('discover', deviceUuid, address, addressType, connectable, advertisement, rssi);
         args = { _s("discover"),  _u(uuid),     _s(address), toAddressType(env, addressType),
-                 _b(connectable), advertisment, _n(rssi) };
-    });
+                 _b(connectable), advertisment, _n(rssi) }; });
 }
 
-void Emit::Connected(const std::string& uuid, const std::string& error)
+void Emit::Connected(const std::string &uuid, const std::string &error)
 {
-    mCallback->call([uuid, error](Napi::Env env, std::vector<napi_value>& args) {
+    mCallback->call([uuid, error](Napi::Env env, std::vector<napi_value> &args)
+                    {
         // emit('connect', deviceUuid) error added here
-        args = { _s("connect"), _u(uuid), error.empty() ? env.Null() : _s(error) };
-    });
+        args = { _s("connect"), _u(uuid), error.empty() ? env.Null() : _s(error) }; });
 }
 
-void Emit::Disconnected(const std::string& uuid)
+void Emit::Disconnected(const std::string &uuid)
 {
-    mCallback->call([uuid](Napi::Env env, std::vector<napi_value>& args) {
+    mCallback->call([uuid](Napi::Env env, std::vector<napi_value> &args)
+                    {
         // emit('disconnect', deviceUuid);
-        args = { _s("disconnect"), _u(uuid) };
-    });
+        args = { _s("disconnect"), _u(uuid) }; });
 }
 
-void Emit::RSSI(const std::string& uuid, int rssi)
+void Emit::RSSI(const std::string &uuid, int rssi)
 {
-    mCallback->call([uuid, rssi](Napi::Env env, std::vector<napi_value>& args) {
+    mCallback->call([uuid, rssi](Napi::Env env, std::vector<napi_value> &args)
+                    {
         // emit('rssiUpdate', deviceUuid, rssi);
-        args = { _s("rssiUpdate"), _u(uuid), _n(rssi) };
-    });
+        args = { _s("rssiUpdate"), _u(uuid), _n(rssi) }; });
 }
 
-void Emit::ServicesDiscovered(const std::string& uuid, const std::vector<std::string>& serviceUuids)
+void Emit::ServicesDiscovered(const std::string &uuid, const std::vector<std::string> &serviceUuids)
 {
-    mCallback->call([uuid, serviceUuids](Napi::Env env, std::vector<napi_value>& args) {
+    mCallback->call([uuid, serviceUuids](Napi::Env env, std::vector<napi_value> &args)
+                    {
         // emit('servicesDiscover', deviceUuid, serviceUuids)
-        args = { _s("servicesDiscover"), _u(uuid), toUuidArray(env, serviceUuids) };
-    });
+        args = { _s("servicesDiscover"), _u(uuid), toUuidArray(env, serviceUuids) }; });
 }
 
-void Emit::IncludedServicesDiscovered(const std::string& uuid, const std::string& serviceUuid,
-                                      const std::vector<std::string>& serviceUuids)
+void Emit::IncludedServicesDiscovered(const std::string &uuid, const std::string &serviceUuid,
+                                      const std::vector<std::string> &serviceUuids)
 {
     mCallback->call(
-        [uuid, serviceUuid, serviceUuids](Napi::Env env, std::vector<napi_value>& args) {
+        [uuid, serviceUuid, serviceUuids](Napi::Env env, std::vector<napi_value> &args)
+        {
             // emit('includedServicesDiscover', deviceUuid, serviceUuid, includedServiceUuids)
-            args = { _s("includedServicesDiscover"), _u(uuid), _u(serviceUuid),
-                     toUuidArray(env, serviceUuids) };
+            args = {_s("includedServicesDiscover"), _u(uuid), _u(serviceUuid),
+                    toUuidArray(env, serviceUuids)};
         });
 }
 
 void Emit::CharacteristicsDiscovered(
-    const std::string& uuid, const std::string& serviceUuid,
-    const std::vector<std::pair<std::string, std::vector<std::string>>>& characteristics)
+    const std::string &uuid, const std::string &serviceUuid,
+    const std::vector<std::pair<std::string, std::vector<std::string>>> &characteristics, const std::string &error)
 {
     mCallback->call(
-        [uuid, serviceUuid, characteristics](Napi::Env env, std::vector<napi_value>& args) {
+        [uuid, serviceUuid, characteristics, error](Napi::Env env, std::vector<napi_value> &args)
+        {
             auto arr = characteristics.empty() ? Napi::Array::New(env)
                                                : Napi::Array::New(env, characteristics.size());
             for (size_t i = 0; i < characteristics.size(); i++)
@@ -186,89 +188,90 @@ void Emit::CharacteristicsDiscovered(
             }
             // emit('characteristicsDiscover', deviceUuid, serviceUuid, { uuid, properties:
             // ['broadcast', 'read', ...]})
-            args = { _s("characteristicsDiscover"), _u(uuid), _u(serviceUuid), arr };
+            args = {_s("characteristicsDiscover"), _u(uuid), _u(serviceUuid), arr, error.empty() ? env.Null() : _s(error)};
         });
 }
 
-void Emit::Read(const std::string& uuid, const std::string& serviceUuid,
-                const std::string& characteristicUuid, const Data& data, bool isNotification)
+void Emit::Read(const std::string &uuid, const std::string &serviceUuid,
+                const std::string &characteristicUuid, const Data &data, bool isNotification)
 {
     mCallback->call([uuid, serviceUuid, characteristicUuid, data,
-                     isNotification](Napi::Env env, std::vector<napi_value>& args) {
+                     isNotification](Napi::Env env, std::vector<napi_value> &args)
+                    {
         // emit('read', deviceUuid, serviceUuid, characteristicsUuid, data, isNotification);
         args = { _s("read"),          _u(uuid),          _u(serviceUuid), _u(characteristicUuid),
-                 toBuffer(env, data), _b(isNotification) };
-    });
+                 toBuffer(env, data), _b(isNotification) }; });
 }
 
-void Emit::Write(const std::string& uuid, const std::string& serviceUuid,
-                 const std::string& characteristicUuid)
+void Emit::Write(const std::string &uuid, const std::string &serviceUuid,
+                 const std::string &characteristicUuid)
 {
     mCallback->call(
-        [uuid, serviceUuid, characteristicUuid](Napi::Env env, std::vector<napi_value>& args) {
+        [uuid, serviceUuid, characteristicUuid](Napi::Env env, std::vector<napi_value> &args)
+        {
             // emit('write', deviceUuid, servicesUuid, characteristicsUuid)
-            args = { _s("write"), _u(uuid), _u(serviceUuid), _u(characteristicUuid) };
+            args = {_s("write"), _u(uuid), _u(serviceUuid), _u(characteristicUuid)};
         });
 }
 
-void Emit::Notify(const std::string& uuid, const std::string& serviceUuid,
-                  const std::string& characteristicUuid, bool state)
+void Emit::Notify(const std::string &uuid, const std::string &serviceUuid,
+                  const std::string &characteristicUuid, bool state)
 {
     mCallback->call([uuid, serviceUuid, characteristicUuid, state](Napi::Env env,
-                                                                   std::vector<napi_value>& args) {
+                                                                   std::vector<napi_value> &args)
+                    {
         // emit('notify', deviceUuid, servicesUuid, characteristicsUuid, state)
-        args = { _s("notify"), _u(uuid), _u(serviceUuid), _u(characteristicUuid), _b(state) };
-    });
+        args = { _s("notify"), _u(uuid), _u(serviceUuid), _u(characteristicUuid), _b(state) }; });
 }
 
-void Emit::DescriptorsDiscovered(const std::string& uuid, const std::string& serviceUuid,
-                                 const std::string& characteristicUuid,
-                                 const std::vector<std::string>& descriptorUuids)
+void Emit::DescriptorsDiscovered(const std::string &uuid, const std::string &serviceUuid,
+                                 const std::string &characteristicUuid,
+                                 const std::vector<std::string> &descriptorUuids)
 {
     mCallback->call([uuid, serviceUuid, characteristicUuid,
-                     descriptorUuids](Napi::Env env, std::vector<napi_value>& args) {
+                     descriptorUuids](Napi::Env env, std::vector<napi_value> &args)
+                    {
         // emit('descriptorsDiscover', deviceUuid, servicesUuid, characteristicsUuid, descriptors:
         // [uuids])
         args = { _s("descriptorsDiscover"), _u(uuid), _u(serviceUuid), _u(characteristicUuid),
-                 toUuidArray(env, descriptorUuids) };
-    });
+                 toUuidArray(env, descriptorUuids) }; });
 }
 
-void Emit::ReadValue(const std::string& uuid, const std::string& serviceUuid,
-                     const std::string& characteristicUuid, const std::string& descriptorUuid,
-                     const Data& data)
+void Emit::ReadValue(const std::string &uuid, const std::string &serviceUuid,
+                     const std::string &characteristicUuid, const std::string &descriptorUuid,
+                     const Data &data)
 {
     mCallback->call([uuid, serviceUuid, characteristicUuid, descriptorUuid,
-                     data](Napi::Env env, std::vector<napi_value>& args) {
+                     data](Napi::Env env, std::vector<napi_value> &args)
+                    {
         // emit('valueRead', deviceUuid, serviceUuid, characteristicUuid, descriptorUuid, data)
         args = { _s("valueRead"),        _u(uuid),           _u(serviceUuid),
-                 _u(characteristicUuid), _u(descriptorUuid), toBuffer(env, data) };
-    });
+                 _u(characteristicUuid), _u(descriptorUuid), toBuffer(env, data) }; });
 }
 
-void Emit::WriteValue(const std::string& uuid, const std::string& serviceUuid,
-                      const std::string& characteristicUuid, const std::string& descriptorUuid)
+void Emit::WriteValue(const std::string &uuid, const std::string &serviceUuid,
+                      const std::string &characteristicUuid, const std::string &descriptorUuid)
 {
     mCallback->call([uuid, serviceUuid, characteristicUuid,
-                     descriptorUuid](Napi::Env env, std::vector<napi_value>& args) {
+                     descriptorUuid](Napi::Env env, std::vector<napi_value> &args)
+                    {
         // emit('valueWrite', deviceUuid, serviceUuid, characteristicUuid, descriptorUuid);
         args = { _s("valueWrite"), _u(uuid), _u(serviceUuid), _u(characteristicUuid),
-                 _u(descriptorUuid) };
-    });
+                 _u(descriptorUuid) }; });
 }
 
-void Emit::ReadHandle(const std::string& uuid, int descriptorHandle, const Data& data)
+void Emit::ReadHandle(const std::string &uuid, int descriptorHandle, const Data &data)
 {
-    mCallback->call([uuid, descriptorHandle, data](Napi::Env env, std::vector<napi_value>& args) {
+    mCallback->call([uuid, descriptorHandle, data](Napi::Env env, std::vector<napi_value> &args)
+                    {
         // emit('handleRead', deviceUuid, descriptorHandle, data);
-        args = { _s("handleRead"), _u(uuid), _n(descriptorHandle), toBuffer(env, data) };
-    });
+        args = { _s("handleRead"), _u(uuid), _n(descriptorHandle), toBuffer(env, data) }; });
 }
 
-void Emit::WriteHandle(const std::string& uuid, int descriptorHandle)
+void Emit::WriteHandle(const std::string &uuid, int descriptorHandle)
 {
-    mCallback->call([uuid, descriptorHandle](Napi::Env env, std::vector<napi_value>& args) {
+    mCallback->call([uuid, descriptorHandle](Napi::Env env, std::vector<napi_value> &args)
+                    {
         // emit('handleWrite', deviceUuid, descriptorHandle);
-        args = { _s("handleWrite"), _u(uuid), _n(descriptorHandle) };
-    });
+        args = { _s("handleWrite"), _u(uuid), _n(descriptorHandle) }; });
 }

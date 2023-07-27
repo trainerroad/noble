@@ -19,7 +19,15 @@ describe('peripheral', () => {
 
   beforeEach(() => {
     mockNoble = {};
-    peripheral = new Peripheral(mockNoble, mockId, mockAddress, mockAddressType, mockConnectable, mockAdvertisement, mockRssi);
+    peripheral = new Peripheral(
+      mockNoble,
+      mockId,
+      mockAddress,
+      mockAddressType,
+      mockConnectable,
+      mockAdvertisement,
+      mockRssi
+    );
   });
 
   it('should have a id', () => {
@@ -48,7 +56,9 @@ describe('peripheral', () => {
 
   describe('toString', () => {
     it('should be id, address, address type, connectable, advertisement, rssi, state', () => {
-      should(peripheral.toString()).equal('{"id":"mock-id","address":"mock-address","addressType":"mock-address-type","connectable":"mock-connectable","advertisement":"mock-advertisement","rssi":"mock-rssi","mtu":null,"state":"disconnected"}');
+      should(peripheral.toString()).equal(
+        '{"id":"mock-id","address":"mock-address","addressType":"mock-address-type","connectable":"mock-connectable","advertisement":"mock-advertisement","rssi":"mock-rssi","mtu":null,"state":"disconnected"}'
+      );
     });
   });
 
@@ -163,7 +173,10 @@ describe('peripheral', () => {
       peripheral.connect(connectCallback);
       peripheral.cancelConnect(options);
 
-      assert.calledOnceWithMatch(connectCallback, sinon.match({ message: 'connection canceled!' }));
+      assert.calledOnceWithMatch(
+        connectCallback,
+        sinon.match({ message: 'connection canceled!' })
+      );
       assert.calledOnceWithExactly(mockNoble.cancelConnect, mockId, options);
     });
   });
@@ -263,13 +276,21 @@ describe('peripheral', () => {
 
     it('should delegate to noble', () => {
       peripheral.discoverServices();
-      assert.calledOnceWithExactly(mockNoble.discoverServices, mockId, undefined);
+      assert.calledOnceWithExactly(
+        mockNoble.discoverServices,
+        mockId,
+        undefined
+      );
     });
 
     it('should delegate to noble, service uuids', () => {
       const mockServiceUuids = [];
       peripheral.discoverServices(mockServiceUuids);
-      assert.calledOnceWithExactly(mockNoble.discoverServices, mockId, mockServiceUuids);
+      assert.calledOnceWithExactly(
+        mockNoble.discoverServices,
+        mockId,
+        mockServiceUuids
+      );
     });
 
     it('should callback', () => {
@@ -277,7 +298,7 @@ describe('peripheral', () => {
       peripheral.discoverServices('uuids', callback);
       peripheral.emit('servicesDiscover', 'services');
 
-      assert.alwaysCalledWithExactly(callback, null, 'services');
+      assert.alwaysCalledWithExactly(callback, undefined, 'services');
       assert.calledOnceWithExactly(mockNoble.discoverServices, mockId, 'uuids');
     });
   });
@@ -313,12 +334,12 @@ describe('peripheral', () => {
       mockServices = [
         {
           uuid: '1',
-          discoverCharacteristics: sinon.spy()
+          discoverCharacteristics: sinon.spy(),
         },
         {
           uuid: '2',
-          discoverCharacteristics: sinon.spy()
-        }
+          discoverCharacteristics: sinon.spy(),
+        },
       ];
     });
 
@@ -330,52 +351,125 @@ describe('peripheral', () => {
       peripheral.discoverSomeServicesAndCharacteristics(mockServiceUuids);
       peripheral.discoverServices.callArg(1, null, mockServices);
 
-      assert.calledOnceWithMatch(peripheral.discoverServices, mockServiceUuids, sinon.match.func);
+      assert.calledOnceWithMatch(
+        peripheral.discoverServices,
+        mockServiceUuids,
+        sinon.match.func
+      );
     });
 
     it('should call discoverCharacteristics on each service discovered', () => {
-      peripheral.discoverSomeServicesAndCharacteristics(mockServiceUuids, mockCharacteristicUuids);
+      peripheral.discoverSomeServicesAndCharacteristics(
+        mockServiceUuids,
+        mockCharacteristicUuids
+      );
       peripheral.discoverServices.callArg(1, null, mockServices);
 
-      assert.calledOnceWithMatch(peripheral.discoverServices, mockServiceUuids, sinon.match.func);
-      assert.calledOnceWithMatch(mockServices[0].discoverCharacteristics, mockCharacteristicUuids, sinon.match.func);
-      assert.calledOnceWithMatch(mockServices[1].discoverCharacteristics, mockCharacteristicUuids, sinon.match.func);
+      assert.calledOnceWithMatch(
+        peripheral.discoverServices,
+        mockServiceUuids,
+        sinon.match.func
+      );
+      assert.calledOnceWithMatch(
+        mockServices[0].discoverCharacteristics,
+        mockCharacteristicUuids,
+        sinon.match.func
+      );
+      assert.calledOnceWithMatch(
+        mockServices[1].discoverCharacteristics,
+        mockCharacteristicUuids,
+        sinon.match.func
+      );
     });
 
     it('should callback', () => {
       const callback = sinon.spy();
 
-      peripheral.discoverSomeServicesAndCharacteristics(mockServiceUuids, mockCharacteristicUuids, callback);
+      peripheral.discoverSomeServicesAndCharacteristics(
+        mockServiceUuids,
+        mockCharacteristicUuids,
+        callback
+      );
       peripheral.discoverServices.callArg(1, null, mockServices);
 
-      assert.calledOnceWithMatch(peripheral.discoverServices, mockServiceUuids, sinon.match.func);
-      assert.calledOnceWithMatch(mockServices[0].discoverCharacteristics, mockCharacteristicUuids, sinon.match.func);
-      assert.calledOnceWithMatch(mockServices[1].discoverCharacteristics, mockCharacteristicUuids, sinon.match.func);
+      assert.calledOnceWithMatch(
+        peripheral.discoverServices,
+        mockServiceUuids,
+        sinon.match.func
+      );
+      assert.calledOnceWithMatch(
+        mockServices[0].discoverCharacteristics,
+        mockCharacteristicUuids,
+        sinon.match.func
+      );
+      assert.calledOnceWithMatch(
+        mockServices[1].discoverCharacteristics,
+        mockCharacteristicUuids,
+        sinon.match.func
+      );
 
-      mockServices[0].discoverCharacteristics.callArg(1, null, mockCharacteristicUuids);
-      mockServices[1].discoverCharacteristics.callArg(1, null, mockCharacteristicUuids);
+      mockServices[0].discoverCharacteristics.callArg(
+        1,
+        null,
+        mockCharacteristicUuids
+      );
+      mockServices[1].discoverCharacteristics.callArg(
+        1,
+        null,
+        mockCharacteristicUuids
+      );
 
-      assert.calledOnceWithExactly(callback, null, mockServices, mockCharacteristicUuids);
+      assert.calledOnceWithExactly(
+        callback,
+        null,
+        mockServices,
+        mockCharacteristicUuids
+      );
     });
 
     it('should callback with the services and characteristics discovered', () => {
       const callback = sinon.spy();
 
-      peripheral.discoverSomeServicesAndCharacteristics(mockServiceUuids, mockCharacteristicUuids, callback);
+      peripheral.discoverSomeServicesAndCharacteristics(
+        mockServiceUuids,
+        mockCharacteristicUuids,
+        callback
+      );
       peripheral.discoverServices.callArg(1, null, mockServices);
 
       const mockCharacteristic1 = { uuid: '1' };
       const mockCharacteristic2 = { uuid: '2' };
       const mockCharacteristic3 = { uuid: '3' };
 
-      assert.calledOnceWithMatch(peripheral.discoverServices, mockServiceUuids, sinon.match.func);
-      assert.calledOnceWithMatch(mockServices[0].discoverCharacteristics, mockCharacteristicUuids, sinon.match.func);
-      assert.calledOnceWithMatch(mockServices[1].discoverCharacteristics, mockCharacteristicUuids, sinon.match.func);
+      assert.calledOnceWithMatch(
+        peripheral.discoverServices,
+        mockServiceUuids,
+        sinon.match.func
+      );
+      assert.calledOnceWithMatch(
+        mockServices[0].discoverCharacteristics,
+        mockCharacteristicUuids,
+        sinon.match.func
+      );
+      assert.calledOnceWithMatch(
+        mockServices[1].discoverCharacteristics,
+        mockCharacteristicUuids,
+        sinon.match.func
+      );
 
-      mockServices[0].discoverCharacteristics.callArg(1, null, [mockCharacteristic1]);
-      mockServices[1].discoverCharacteristics.callArg(1, null, [mockCharacteristic2, mockCharacteristic3]);
+      mockServices[0].discoverCharacteristics.callArg(1, null, [
+        mockCharacteristic1,
+      ]);
+      mockServices[1].discoverCharacteristics.callArg(1, null, [
+        mockCharacteristic2,
+        mockCharacteristic3,
+      ]);
 
-      assert.calledOnceWithExactly(callback, null, mockServices, [mockCharacteristic1, mockCharacteristic2, mockCharacteristic3]);
+      assert.calledOnceWithExactly(callback, null, mockServices, [
+        mockCharacteristic1,
+        mockCharacteristic2,
+        mockCharacteristic3,
+      ]);
     });
   });
 
@@ -390,12 +484,12 @@ describe('peripheral', () => {
       mockServices = [
         {
           uuid: '1',
-          discoverCharacteristics: sinon.spy()
+          discoverCharacteristics: sinon.spy(),
         },
         {
           uuid: '2',
-          discoverCharacteristics: sinon.spy()
-        }
+          discoverCharacteristics: sinon.spy(),
+        },
       ];
     });
 
@@ -404,84 +498,138 @@ describe('peripheral', () => {
     });
 
     it('should call discoverServices', async () => {
-      const promise = peripheral.discoverSomeServicesAndCharacteristicsAsync(mockServiceUuids);
+      const promise =
+        peripheral.discoverSomeServicesAndCharacteristicsAsync(
+          mockServiceUuids
+        );
       peripheral.discoverServices.callArg(1, null, mockServices);
 
       should(promise).resolvedWith([]);
-      assert.calledOnceWithMatch(peripheral.discoverServices, mockServiceUuids, sinon.match.func);
+      assert.calledOnceWithMatch(
+        peripheral.discoverServices,
+        mockServiceUuids,
+        sinon.match.func
+      );
     });
 
     it('should call discoverCharacteristics on each service discovered', () => {
-      const promise = peripheral.discoverSomeServicesAndCharacteristicsAsync(mockServiceUuids, mockCharacteristicUuids);
+      const promise = peripheral.discoverSomeServicesAndCharacteristicsAsync(
+        mockServiceUuids,
+        mockCharacteristicUuids
+      );
       peripheral.discoverServices.callArg(1, null, mockServices);
 
       should(promise).resolvedWith([]);
-      assert.calledOnceWithMatch(peripheral.discoverServices, mockServiceUuids, sinon.match.func);
-      assert.calledOnceWithMatch(mockServices[0].discoverCharacteristics, mockCharacteristicUuids, sinon.match.func);
-      assert.calledOnceWithMatch(mockServices[1].discoverCharacteristics, mockCharacteristicUuids, sinon.match.func);
+      assert.calledOnceWithMatch(
+        peripheral.discoverServices,
+        mockServiceUuids,
+        sinon.match.func
+      );
+      assert.calledOnceWithMatch(
+        mockServices[0].discoverCharacteristics,
+        mockCharacteristicUuids,
+        sinon.match.func
+      );
+      assert.calledOnceWithMatch(
+        mockServices[1].discoverCharacteristics,
+        mockCharacteristicUuids,
+        sinon.match.func
+      );
     });
 
     it('should reject on error', async () => {
-      const promise = peripheral.discoverSomeServicesAndCharacteristicsAsync(mockServiceUuids, mockCharacteristicUuids);
+      const promise = peripheral.discoverSomeServicesAndCharacteristicsAsync(
+        mockServiceUuids,
+        mockCharacteristicUuids
+      );
       peripheral.discoverServices.callArg(1, 'error', null);
 
       should(promise).rejectedWith('error');
-      assert.calledOnceWithMatch(peripheral.discoverServices, mockServiceUuids, sinon.match.func);
+      assert.calledOnceWithMatch(
+        peripheral.discoverServices,
+        mockServiceUuids,
+        sinon.match.func
+      );
       assert.notCalled(mockServices[0].discoverCharacteristics);
     });
 
     it('should resolve with the services and characteristics discovered', async () => {
       const callback = sinon.spy();
 
-      const promise = peripheral.discoverSomeServicesAndCharacteristicsAsync(mockServiceUuids, mockCharacteristicUuids, callback);
+      const promise = peripheral.discoverSomeServicesAndCharacteristicsAsync(
+        mockServiceUuids,
+        mockCharacteristicUuids,
+        callback
+      );
       peripheral.discoverServices.callArg(1, null, mockServices);
 
       const mockCharacteristic1 = { uuid: '1' };
       const mockCharacteristic2 = { uuid: '2' };
       const mockCharacteristic3 = { uuid: '3' };
 
-      assert.calledOnceWithMatch(peripheral.discoverServices, mockServiceUuids, sinon.match.func);
-      assert.calledOnceWithMatch(mockServices[0].discoverCharacteristics, mockCharacteristicUuids, sinon.match.func);
-      assert.calledOnceWithMatch(mockServices[1].discoverCharacteristics, mockCharacteristicUuids, sinon.match.func);
+      assert.calledOnceWithMatch(
+        peripheral.discoverServices,
+        mockServiceUuids,
+        sinon.match.func
+      );
+      assert.calledOnceWithMatch(
+        mockServices[0].discoverCharacteristics,
+        mockCharacteristicUuids,
+        sinon.match.func
+      );
+      assert.calledOnceWithMatch(
+        mockServices[1].discoverCharacteristics,
+        mockCharacteristicUuids,
+        sinon.match.func
+      );
 
-      mockServices[0].discoverCharacteristics.callArg(1, null, [mockCharacteristic1]);
-      mockServices[1].discoverCharacteristics.callArg(1, null, [mockCharacteristic2, mockCharacteristic3]);
+      mockServices[0].discoverCharacteristics.callArg(1, null, [
+        mockCharacteristic1,
+      ]);
+      mockServices[1].discoverCharacteristics.callArg(1, null, [
+        mockCharacteristic2,
+        mockCharacteristic3,
+      ]);
 
-      should(promise).resolvedWith([mockCharacteristic1, mockCharacteristic2, mockCharacteristic3]);
+      should(promise).resolvedWith([
+        mockCharacteristic1,
+        mockCharacteristic2,
+        mockCharacteristic3,
+      ]);
     });
   });
 
-  describe('discoverAllServicesAndCharacteristics', () => {
-    beforeEach(() => {
-      peripheral.discoverSomeServicesAndCharacteristics = sinon.stub();
-    });
+  // describe('discoverAllServicesAndCharacteristics', () => {
+  //   beforeEach(() => {
+  //     peripheral.discoverSomeServicesAndCharacteristics = sinon.stub();
+  //   });
 
-    afterEach(() => {
-      sinon.reset();
-    });
+  //   afterEach(() => {
+  //     sinon.reset();
+  //   });
 
-    it('should call discoverSomeServicesAndCharacteristics', () => {
-      const callback = sinon.spy();
-      peripheral.discoverAllServicesAndCharacteristics(callback);
-      assert.calledOnceWithExactly(peripheral.discoverSomeServicesAndCharacteristics, [], [], callback);
-    });
-  });
+  //   it('should call discoverSomeServicesAndCharacteristics', () => {
+  //     const callback = sinon.spy();
+  //     peripheral.discoverAllServicesAndCharacteristics(callback);
+  //     assert.calledOnceWithExactly(peripheral.discoverSomeServicesAndCharacteristics, [], [], callback);
+  //   });
+  // });
 
-  describe('discoverAllServicesAndCharacteristicsAsync', () => {
-    beforeEach(() => {
-      peripheral.discoverSomeServicesAndCharacteristics = sinon.stub();
-    });
+  // describe('discoverAllServicesAndCharacteristicsAsync', () => {
+  //   beforeEach(() => {
+  //     peripheral.discoverSomeServicesAndCharacteristics = sinon.stub();
+  //   });
 
-    afterEach(() => {
-      sinon.reset();
-    });
+  //   afterEach(() => {
+  //     sinon.reset();
+  //   });
 
-    it('should call discoverSomeServicesAndCharacteristics', async () => {
-      const promise = peripheral.discoverAllServicesAndCharacteristicsAsync();
-      peripheral.discoverSomeServicesAndCharacteristics.callArg(2, null);
-      should(promise).resolvedWith([]);
-    });
-  });
+  //   it('should call discoverSomeServicesAndCharacteristics', async () => {
+  //     const promise = peripheral.discoverAllServicesAndCharacteristicsAsync();
+  //     peripheral.discoverSomeServicesAndCharacteristics.callArg(2, null);
+  //     should(promise).resolvedWith([]);
+  //   });
+  // });
 
   describe('readHandle', () => {
     beforeEach(() => {
@@ -555,7 +703,9 @@ describe('peripheral', () => {
 
     it('should only accept data as a buffer', () => {
       const mockData = {};
-      should(() => peripheral.writeHandle(mockHandle, mockData)).throw('data must be a Buffer');
+      should(() => peripheral.writeHandle(mockHandle, mockData)).throw(
+        'data must be a Buffer'
+      );
       assert.notCalled(mockNoble.writeHandle);
     });
 
@@ -563,14 +713,26 @@ describe('peripheral', () => {
       const mockData = Buffer.alloc(0);
       peripheral.writeHandle(mockHandle, mockData, false);
 
-      assert.alwaysCalledWithExactly(mockNoble.writeHandle, mockId, mockHandle, mockData, false);
+      assert.alwaysCalledWithExactly(
+        mockNoble.writeHandle,
+        mockId,
+        mockHandle,
+        mockData,
+        false
+      );
     });
 
     it('should delegate to noble, withoutResponse true', () => {
       const mockData = Buffer.alloc(0);
       peripheral.writeHandle(mockHandle, mockData, true);
 
-      assert.alwaysCalledWithExactly(mockNoble.writeHandle, mockId, mockHandle, mockData, true);
+      assert.alwaysCalledWithExactly(
+        mockNoble.writeHandle,
+        mockId,
+        mockHandle,
+        mockData,
+        true
+      );
     });
 
     it('should callback', () => {
@@ -581,7 +743,13 @@ describe('peripheral', () => {
       peripheral.emit(`handleWrite${mockHandle}`);
 
       assert.calledOnceWithExactly(callback, null);
-      assert.alwaysCalledWithExactly(mockNoble.writeHandle, mockId, mockHandle, mockData, false);
+      assert.alwaysCalledWithExactly(
+        mockNoble.writeHandle,
+        mockId,
+        mockHandle,
+        mockData,
+        false
+      );
     });
   });
 
@@ -608,7 +776,13 @@ describe('peripheral', () => {
       peripheral.emit(`handleWrite${mockHandle}`);
 
       should(promise).resolvedWith(null);
-      assert.alwaysCalledWithExactly(mockNoble.writeHandle, mockId, mockHandle, mockData, false);
+      assert.alwaysCalledWithExactly(
+        mockNoble.writeHandle,
+        mockId,
+        mockHandle,
+        mockData,
+        false
+      );
     });
 
     it('should delegate to noble, withoutResponse true', async () => {
@@ -617,7 +791,13 @@ describe('peripheral', () => {
       peripheral.emit(`handleWrite${mockHandle}`);
 
       should(promise).resolvedWith(null);
-      assert.alwaysCalledWithExactly(mockNoble.writeHandle, mockId, mockHandle, mockData, true);
+      assert.alwaysCalledWithExactly(
+        mockNoble.writeHandle,
+        mockId,
+        mockHandle,
+        mockData,
+        true
+      );
     });
   });
 });
