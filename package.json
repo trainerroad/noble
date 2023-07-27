@@ -5,7 +5,7 @@
     "Luis Montes"
   ],
   "license": "MIT",
-  "name": "@trainerroad/noble",
+  "name": "@abandonware/noble",
   "description": "A Node.js BLE (Bluetooth Low Energy) central library.",
   "version": "1.9.2-22",
   "repository": {
@@ -42,7 +42,6 @@
     "node-addon-api": "^4.3.0"
   },
   "optionalDependencies": {
-    "@trainerroad/bluetooth-hci-socket": "git+https://git@github.com/trainerroad/node-bluetooth-hci-socket.git#v0.5.3-10"
   },
   "devDependencies": {
     "async": "^3.2.4",
