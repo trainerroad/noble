@@ -90,7 +90,7 @@ async function prebuild(runtime, abi, arch, version) {
 
   const tarballPath = resolve(
     './prebuilds',
-    '@trainerroad',
+    '@abandonware',
     `noble-v${packageInfo.version}-${runtime}-v${abi}-${process.platform}-${arch}.tar.gz`
   );
   await processTarball(tarballPath);
