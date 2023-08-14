@@ -35,6 +35,7 @@ auto bind2(O *object, M method, Types &...args)
     if (mDeviceMap.find(uuid) == mDeviceMap.end())         \
     {                                                      \
         LOGE("device with id %s not found", uuid.c_str()); \
+        LOGE("++ CHECK_DEVICE return false");              \
         return false;                                      \
     }
 
@@ -105,6 +106,7 @@ const char *adapterStateToString(AdapterState state)
 
 void BLEManager::OnRadio(Radio &radio)
 {
+    LOGE("++ OnRadio");
     auto state = AdapterState::Unsupported;
     if (radio)
     {
@@ -119,6 +121,7 @@ void BLEManager::OnRadio(Radio &radio)
 
 void BLEManager::Scan(const std::vector<winrt::guid> &serviceUUIDs, bool allowDuplicates)
 {
+    LOGE("++ Scan");
     mAdvertismentMap.clear();
     mAllowDuplicates = allowDuplicates;
     BluetoothLEAdvertisementFilter filter = BluetoothLEAdvertisementFilter();
@@ -137,6 +140,7 @@ void BLEManager::Scan(const std::vector<winrt::guid> &serviceUUIDs, bool allowDu
 void BLEManager::OnScanResult(BluetoothLEAdvertisementWatcher watcher,
                               const BluetoothLEAdvertisementReceivedEventArgs &args)
 {
+    LOGE("++ OnScanResult");
     uint64_t bluetoothAddress = args.BluetoothAddress();
     std::string uuid = formatBluetoothUuid(bluetoothAddress);
     int16_t rssi = args.RawSignalStrengthInDBm();
@@ -164,20 +168,24 @@ void BLEManager::OnScanResult(BluetoothLEAdvertisementWatcher watcher,
 
 void BLEManager::StopScan()
 {
+    LOGE("++ StopScan");
     mAdvertismentWatcher.Stop();
 }
 
 void BLEManager::OnScanStopped(BluetoothLEAdvertisementWatcher watcher,
                                const BluetoothLEAdvertisementWatcherStoppedEventArgs &args)
 {
+    LOGE("++ OnScanStopped");
     mEmit.ScanState(false);
 }
 
 bool BLEManager::Connect(const std::string &uuid)
 {
+    LOGE("++ Connect");
     if (mDeviceMap.find(uuid) == mDeviceMap.end())
     {
         mEmit.Connected(uuid, "device not found");
+        LOGE("++ Connect return false");
         return false;
     }
     PeripheralWinrt &peripheral = mDeviceMap[uuid];
@@ -191,14 +199,17 @@ bool BLEManager::Connect(const std::string &uuid)
     {
         mEmit.Connected(uuid);
     }
+    LOGE("++ Connect return true");
     return true;
 }
 
 void BLEManager::OnConnected(IAsyncOperation<BluetoothLEDevice> asyncOp, AsyncStatus status,
                              const std::string uuid)
 {
+    LOGE("++ OnConnected");
     if (status == AsyncStatus::Completed)
     {
+        LOGE("++ OnConnected Completed");
         BluetoothLEDevice device = asyncOp.GetResults();
         // device can be null if the connection failed
         if (device)
@@ -213,6 +224,7 @@ void BLEManager::OnConnected(IAsyncOperation<BluetoothLEDevice> asyncOp, AsyncSt
         }
         else
         {
+            LOGE("++ OnConnected result is null");
             mEmit.Connected(uuid, "could not connect to device: result is null");
         }
     }
@@ -220,21 +232,29 @@ void BLEManager::OnConnected(IAsyncOperation<BluetoothLEDevice> asyncOp, AsyncSt
     {
         mEmit.Connected(uuid, "could not connect to device");
     }
+    LOGE("++ OnConnected return");
 }
 
 bool BLEManager::Disconnect(const std::string &uuid)
 {
+    LOGE("++ Disconnect");
     CHECK_DEVICE();
     PeripheralWinrt &peripheral = mDeviceMap[uuid];
+    LOGE("++ Disconnect 2");
     peripheral.Disconnect();
+    LOGE("++ Disconnect 3");
+
     mNotifyMap.Remove(uuid);
+    LOGE("++ Disconnect 4");
     mEmit.Disconnected(uuid);
+    LOGE("++ Disconnect return true");
     return true;
 }
 
 void BLEManager::OnConnectionStatusChanged(BluetoothLEDevice device,
                                            winrt::Windows::Foundation::IInspectable inspectable)
 {
+    LOGE("++ OnConnectionStatusChanged");
     if (device.ConnectionStatus() == BluetoothConnectionStatus::Disconnected)
     {
         auto uuid = formatBluetoothUuid(device.BluetoothAddress());
@@ -248,21 +268,25 @@ void BLEManager::OnConnectionStatusChanged(BluetoothLEDevice device,
         mNotifyMap.Remove(uuid);
         mEmit.Disconnected(uuid);
     }
+    LOGE("++ OnConnectionStatusChanged return");
 }
 
 bool BLEManager::UpdateRSSI(const std::string &uuid)
 {
+    LOGE("++ UpdateRSSI");
     CHECK_DEVICE();
 
     PeripheralWinrt &peripheral = mDeviceMap[uuid];
     // no way to get the rssi while we are connected, return the last value of advertisement
     mEmit.RSSI(uuid, peripheral.rssi);
+    LOGE("++ UpdateRSSI return true");
     return true;
 }
 
 bool BLEManager::DiscoverServices(const std::string &uuid,
                                   const std::vector<winrt::guid> &serviceUUIDs)
 {
+    LOGE("++ DiscoverServices");
     CHECK_DEVICE();
     IFDEVICE(device, uuid)
     {
@@ -276,6 +300,7 @@ void BLEManager::OnServicesDiscovered(IAsyncOperation<GattDeviceServicesResult> 
                                       AsyncStatus status, const std::string uuid,
                                       const std::vector<winrt::guid> serviceUUIDs)
 {
+    LOGE("++ OnServicesDiscovered");
     if (status == AsyncStatus::Completed)
     {
         GattDeviceServicesResult result = asyncOp.GetResults();
@@ -300,6 +325,7 @@ void BLEManager::OnServicesDiscovered(IAsyncOperation<GattDeviceServicesResult> 
 bool BLEManager::DiscoverIncludedServices(const std::string &uuid, const winrt::guid &serviceUuid,
                                           const std::vector<winrt::guid> &serviceUUIDs)
 {
+    LOGE("++ DiscoverIncludedServices");
     CHECK_DEVICE();
     IFDEVICE(device, uuid)
     {
@@ -325,6 +351,7 @@ void BLEManager::OnIncludedServicesDiscovered(IAsyncOperation<GattDeviceServices
                                               const std::string serviceId,
                                               const std::vector<winrt::guid> serviceUUIDs)
 {
+    LOGE("++ OnIncludedServicesDiscovered");
     if (status == AsyncStatus::Completed)
     {
         auto result = asyncOp.GetResults();
@@ -349,6 +376,7 @@ void BLEManager::OnIncludedServicesDiscovered(IAsyncOperation<GattDeviceServices
 bool BLEManager::DiscoverCharacteristics(const std::string &uuid, const winrt::guid &serviceUuid,
                                          const std::vector<winrt::guid> &characteristicUUIDs)
 {
+    LOGE("++ DiscoverCharacteristics");
     CHECK_DEVICE();
     IFDEVICE(device, uuid)
     {
@@ -374,6 +402,7 @@ void BLEManager::OnCharacteristicsDiscovered(IAsyncOperation<GattCharacteristics
                                              const std::string serviceId,
                                              const std::vector<winrt::guid> characteristicUUIDs)
 {
+    LOGE("++ OnCharacteristicsDiscovered");
     std::vector<std::pair<std::string, std::vector<std::string>>> characteristicsUuids;
     if (status == AsyncStatus::Completed)
     {
@@ -407,6 +436,7 @@ void BLEManager::OnCharacteristicsDiscovered(IAsyncOperation<GattCharacteristics
 bool BLEManager::Read(const std::string &uuid, const winrt::guid &serviceUuid,
                       const winrt::guid &characteristicUuid)
 {
+    LOGE("++ Read");
     CHECK_DEVICE();
     IFDEVICE(device, uuid)
     {
@@ -433,6 +463,7 @@ void BLEManager::OnRead(IAsyncOperation<GattReadResult> asyncOp, AsyncStatus sta
                         const std::string uuid, const std::string serviceId,
                         const std::string characteristicId)
 {
+    LOGE("++ OnRead");
     if (status == AsyncStatus::Completed)
     {
         GattReadResult result = asyncOp.GetResults();
@@ -460,9 +491,16 @@ bool BLEManager::Write(const std::string &uuid, const winrt::guid &serviceUuid,
                        const winrt::guid &characteristicUuid, const Data &data,
                        bool withoutResponse)
 {
+    LOGE("++ Write");
     CHECK_DEVICE();
     IFDEVICE(device, uuid)
     {
+        if (device.ConnectionStatus() != BluetoothConnectionStatus::Connected)
+        {
+            LOGE("trying to write to device that is not connected");
+            return false;
+        }
+
         peripheral.GetCharacteristic(
             serviceUuid, characteristicUuid, [=](std::optional<GattCharacteristic> characteristic)
             {
@@ -491,6 +529,7 @@ void BLEManager::OnWrite(IAsyncOperation<GattWriteResult> asyncOp, AsyncStatus s
                          const std::string uuid, const std::string serviceId,
                          const std::string characteristicId)
 {
+    LOGE("++ OnWrite");
     if (status == AsyncStatus::Completed)
     {
         mEmit.Write(uuid, serviceId, characteristicId);
@@ -504,6 +543,7 @@ void BLEManager::OnWrite(IAsyncOperation<GattWriteResult> asyncOp, AsyncStatus s
 GattClientCharacteristicConfigurationDescriptorValue
 GetDescriptorValue(GattCharacteristicProperties properties)
 {
+    LOGE("++ GetDescriptorValue");
     if ((properties & GattCharacteristicProperties::Indicate) ==
         GattCharacteristicProperties::Indicate)
     {
@@ -518,6 +558,7 @@ GetDescriptorValue(GattCharacteristicProperties properties)
 bool BLEManager::Notify(const std::string &uuid, const winrt::guid &serviceUuid,
                         const winrt::guid &characteristicUuid, bool on)
 {
+    LOGE("++ Notify");
     CHECK_DEVICE();
     IFDEVICE(device, uuid)
     {
@@ -582,6 +623,7 @@ void BLEManager::OnNotify(IAsyncOperation<GattWriteResult> asyncOp, AsyncStatus 
                           const std::string serviceId, const std::string characteristicId,
                           const bool state)
 {
+    LOGE("++ OnNotify");
     if (status == AsyncStatus::Completed)
     {
         if (state == true)
@@ -601,6 +643,7 @@ void BLEManager::OnNotify(IAsyncOperation<GattWriteResult> asyncOp, AsyncStatus 
 void BLEManager::OnValueChanged(GattCharacteristic characteristic,
                                 const GattValueChangedEventArgs &args, std::string deviceUuid)
 {
+    LOGE("++ OnValueChanged");
     auto reader = DataReader::FromBuffer(args.CharacteristicValue());
     Data data(reader.UnconsumedBufferLength());
     reader.ReadBytes(data);
@@ -612,6 +655,7 @@ void BLEManager::OnValueChanged(GattCharacteristic characteristic,
 bool BLEManager::DiscoverDescriptors(const std::string &uuid, const winrt::guid &serviceUuid,
                                      const winrt::guid &characteristicUuid)
 {
+    LOGE("++ DiscoverDescriptors");
     CHECK_DEVICE();
     IFDEVICE(device, uuid)
     {
@@ -640,6 +684,7 @@ void BLEManager::OnDescriptorsDiscovered(IAsyncOperation<GattDescriptorsResult> 
                                          const std::string serviceId,
                                          const std::string characteristicId)
 {
+    LOGE("++ OnDescriptorsDiscovered");
     if (status == AsyncStatus::Completed)
     {
         auto result = asyncOp.GetResults();
@@ -660,6 +705,7 @@ void BLEManager::OnDescriptorsDiscovered(IAsyncOperation<GattDescriptorsResult> 
 bool BLEManager::ReadValue(const std::string &uuid, const winrt::guid &serviceUuid,
                            const winrt::guid &characteristicUuid, const winrt::guid &descriptorUuid)
 {
+    LOGE("++ ReadValue");
     CHECK_DEVICE();
     IFDEVICE(device, uuid)
     {
@@ -689,6 +735,7 @@ void BLEManager::OnReadValue(IAsyncOperation<GattReadResult> asyncOp, AsyncStatu
                              const std::string uuid, const std::string serviceId,
                              const std::string characteristicId, const std::string descriptorId)
 {
+    LOGE("++ OnReadValue");
     if (status == AsyncStatus::Completed)
     {
         GattReadResult result = asyncOp.GetResults();
@@ -716,6 +763,7 @@ bool BLEManager::WriteValue(const std::string &uuid, const winrt::guid &serviceU
                             const winrt::guid &characteristicUuid,
                             const winrt::guid &descriptorUuid, const Data &data)
 {
+    LOGE("++ WriteValue");
     CHECK_DEVICE();
     IFDEVICE(device, uuid)
     {
@@ -747,6 +795,7 @@ void BLEManager::OnWriteValue(IAsyncOperation<GattWriteResult> asyncOp, AsyncSta
                               const std::string uuid, const std::string serviceId,
                               const std::string characteristicId, const std::string descriptorId)
 {
+    LOGE("++ OnWriteValue");
     if (status == AsyncStatus::Completed)
     {
         mEmit.WriteValue(uuid, serviceId, characteristicId, descriptorId);
@@ -759,6 +808,7 @@ void BLEManager::OnWriteValue(IAsyncOperation<GattWriteResult> asyncOp, AsyncSta
 
 bool BLEManager::ReadHandle(const std::string &uuid, int handle)
 {
+    LOGE("++ ReadHandle");
     CHECK_DEVICE();
     IFDEVICE(device, uuid)
     {
@@ -770,6 +820,7 @@ bool BLEManager::ReadHandle(const std::string &uuid, int handle)
 void BLEManager::OnReadHandle(IAsyncOperation<GattReadResult> asyncOp, AsyncStatus status,
                               const std::string uuid, const int handle)
 {
+    LOGE("++ OnReadHandle");
     if (status == AsyncStatus::Completed)
     {
         GattReadResult result = asyncOp.GetResults();
@@ -795,6 +846,7 @@ void BLEManager::OnReadHandle(IAsyncOperation<GattReadResult> asyncOp, AsyncStat
 
 bool BLEManager::WriteHandle(const std::string &uuid, int handle, Data data)
 {
+    LOGE("++ WriteHandle");
     CHECK_DEVICE();
     IFDEVICE(device, uuid)
     {
@@ -806,6 +858,7 @@ bool BLEManager::WriteHandle(const std::string &uuid, int handle, Data data)
 void BLEManager::OnWriteHandle(IAsyncOperation<GattWriteResult> asyncOp, AsyncStatus status,
                                const std::string uuid, const int handle)
 {
+    LOGE("++ OnWriteHandle");
     if (status == AsyncStatus::Completed)
     {
         mEmit.WriteHandle(uuid, handle);
