@@ -98,7 +98,7 @@ void Emit::ScanState(bool start)
 
 void Emit::Scan(const std::string &uuid, int rssi, const Peripheral &peripheral)
 {
-    LOGE("++ Emit::Scan");
+    // LOGE("++ Emit::Scan");
     auto address = peripheral.address;
     auto addressType = peripheral.addressType;
     auto connectable = peripheral.connectable;

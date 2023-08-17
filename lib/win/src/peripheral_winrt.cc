@@ -38,7 +38,7 @@ PeripheralWinrt::~PeripheralWinrt()
 void PeripheralWinrt::Update(const int rssiValue, const BluetoothLEAdvertisement &advertisment,
                              const BluetoothLEAdvertisementType &advertismentType)
 {
-    LOGE("++ PeripheralWinrt Update");
+    // LOGE("++ PeripheralWinrt Update");
     std::string localName = ws2s(advertisment.LocalName().c_str());
     if (!localName.empty())
     {
@@ -78,7 +78,7 @@ void PeripheralWinrt::Update(const int rssiValue, const BluetoothLEAdvertisement
     }
 
     rssi = rssiValue;
-    LOGE("++ PeripheralWinrt Update return");
+    // LOGE("++ PeripheralWinrt Update return");
 }
 
 void PeripheralWinrt::Disconnect()

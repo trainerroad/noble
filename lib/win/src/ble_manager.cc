@@ -140,7 +140,7 @@ void BLEManager::Scan(const std::vector<winrt::guid> &serviceUUIDs, bool allowDu
 void BLEManager::OnScanResult(BluetoothLEAdvertisementWatcher watcher,
                               const BluetoothLEAdvertisementReceivedEventArgs &args)
 {
-    LOGE("++ OnScanResult");
+    // LOGE("++ OnScanResult");
     uint64_t bluetoothAddress = args.BluetoothAddress();
     std::string uuid = formatBluetoothUuid(bluetoothAddress);
     int16_t rssi = args.RawSignalStrengthInDBm();
