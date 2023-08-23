@@ -13,8 +13,6 @@
 #define _n(val) Napi::Number::New(env, val)
 #define _u(str) toUuid(env, str)
 
-#define LOGE(message, ...) printf(__FUNCTION__ ": " message "\n", __VA_ARGS__)
-
 Napi::String toUuid(Napi::Env &env, const std::string &uuid)
 {
     std::string str(uuid);
@@ -80,7 +78,6 @@ void Emit::Wrap(const Napi::Value &receiver, const Napi::Function &callback)
 
 void Emit::RadioState(const std::string &state)
 {
-    LOGE("++ Emit::RadioState");
     mCallback->call([state](Napi::Env env, std::vector<napi_value> &args)
                     {
         // emit('stateChange', state);
@@ -89,7 +86,6 @@ void Emit::RadioState(const std::string &state)
 
 void Emit::ScanState(bool start)
 {
-    LOGE("++ Emit::ScanState");
     mCallback->call([start](Napi::Env env, std::vector<napi_value> &args)
                     {
         // emit('scanStart') emit('scanStop')
@@ -98,7 +94,6 @@ void Emit::ScanState(bool start)
 
 void Emit::Scan(const std::string &uuid, int rssi, const Peripheral &peripheral)
 {
-    // LOGE("++ Emit::Scan");
     auto address = peripheral.address;
     auto addressType = peripheral.addressType;
     auto connectable = peripheral.connectable;
@@ -133,7 +128,6 @@ void Emit::Scan(const std::string &uuid, int rssi, const Peripheral &peripheral)
 
 void Emit::Connected(const std::string &uuid, const std::string &error)
 {
-    LOGE("++ Emit::Connected");
     mCallback->call([uuid, error](Napi::Env env, std::vector<napi_value> &args)
                     {
         // emit('connect', deviceUuid) error added here
@@ -142,7 +136,6 @@ void Emit::Connected(const std::string &uuid, const std::string &error)
 
 void Emit::Disconnected(const std::string &uuid)
 {
-    LOGE("++ Emit::Disconnected");
     mCallback->call([uuid](Napi::Env env, std::vector<napi_value> &args)
                     {
         // emit('disconnect', deviceUuid);
@@ -151,7 +144,6 @@ void Emit::Disconnected(const std::string &uuid)
 
 void Emit::RSSI(const std::string &uuid, int rssi)
 {
-    LOGE("++ Emit::RSSI");
     mCallback->call([uuid, rssi](Napi::Env env, std::vector<napi_value> &args)
                     {
         // emit('rssiUpdate', deviceUuid, rssi);
@@ -160,7 +152,6 @@ void Emit::RSSI(const std::string &uuid, int rssi)
 
 void Emit::ServicesDiscovered(const std::string &uuid, const std::vector<std::string> &serviceUuids)
 {
-    LOGE("++ Emit::ServicesDiscovered");
     mCallback->call([uuid, serviceUuids](Napi::Env env, std::vector<napi_value> &args)
                     {
         // emit('servicesDiscover', deviceUuid, serviceUuids)
@@ -170,7 +161,6 @@ void Emit::ServicesDiscovered(const std::string &uuid, const std::vector<std::st
 void Emit::IncludedServicesDiscovered(const std::string &uuid, const std::string &serviceUuid,
                                       const std::vector<std::string> &serviceUuids)
 {
-    LOGE("++ Emit::IncludedServicesDiscovered");
     mCallback->call(
         [uuid, serviceUuid, serviceUuids](Napi::Env env, std::vector<napi_value> &args)
         {
@@ -184,7 +174,6 @@ void Emit::CharacteristicsDiscovered(
     const std::string &uuid, const std::string &serviceUuid,
     const std::vector<std::pair<std::string, std::vector<std::string>>> &characteristics, const std::string &error)
 {
-    LOGE("++ Emit::CharacteristicsDiscovered");
     mCallback->call(
         [uuid, serviceUuid, characteristics, error](Napi::Env env, std::vector<napi_value> &args)
         {
@@ -206,7 +195,6 @@ void Emit::CharacteristicsDiscovered(
 void Emit::Read(const std::string &uuid, const std::string &serviceUuid,
                 const std::string &characteristicUuid, const Data &data, bool isNotification)
 {
-    LOGE("++ Emit::Read");
     mCallback->call([uuid, serviceUuid, characteristicUuid, data,
                      isNotification](Napi::Env env, std::vector<napi_value> &args)
                     {
@@ -218,7 +206,6 @@ void Emit::Read(const std::string &uuid, const std::string &serviceUuid,
 void Emit::Write(const std::string &uuid, const std::string &serviceUuid,
                  const std::string &characteristicUuid)
 {
-    LOGE("++ Emit::Write");
     mCallback->call(
         [uuid, serviceUuid, characteristicUuid](Napi::Env env, std::vector<napi_value> &args)
         {
@@ -230,7 +217,6 @@ void Emit::Write(const std::string &uuid, const std::string &serviceUuid,
 void Emit::Notify(const std::string &uuid, const std::string &serviceUuid,
                   const std::string &characteristicUuid, bool state)
 {
-    LOGE("++ Emit::Notify");
     mCallback->call([uuid, serviceUuid, characteristicUuid, state](Napi::Env env,
                                                                    std::vector<napi_value> &args)
                     {
@@ -242,7 +228,6 @@ void Emit::DescriptorsDiscovered(const std::string &uuid, const std::string &ser
                                  const std::string &characteristicUuid,
                                  const std::vector<std::string> &descriptorUuids)
 {
-    LOGE("++ Emit::DescriptorsDiscovered");
     mCallback->call([uuid, serviceUuid, characteristicUuid,
                      descriptorUuids](Napi::Env env, std::vector<napi_value> &args)
                     {
@@ -256,7 +241,6 @@ void Emit::ReadValue(const std::string &uuid, const std::string &serviceUuid,
                      const std::string &characteristicUuid, const std::string &descriptorUuid,
                      const Data &data)
 {
-    LOGE("++ Emit::ReadValue");
     mCallback->call([uuid, serviceUuid, characteristicUuid, descriptorUuid,
                      data](Napi::Env env, std::vector<napi_value> &args)
                     {
@@ -268,7 +252,6 @@ void Emit::ReadValue(const std::string &uuid, const std::string &serviceUuid,
 void Emit::WriteValue(const std::string &uuid, const std::string &serviceUuid,
                       const std::string &characteristicUuid, const std::string &descriptorUuid)
 {
-    LOGE("++ Emit::WriteValue");
     mCallback->call([uuid, serviceUuid, characteristicUuid,
                      descriptorUuid](Napi::Env env, std::vector<napi_value> &args)
                     {
@@ -279,7 +262,6 @@ void Emit::WriteValue(const std::string &uuid, const std::string &serviceUuid,
 
 void Emit::ReadHandle(const std::string &uuid, int descriptorHandle, const Data &data)
 {
-    LOGE("++ Emit::ReadHandle");
     mCallback->call([uuid, descriptorHandle, data](Napi::Env env, std::vector<napi_value> &args)
                     {
         // emit('handleRead', deviceUuid, descriptorHandle, data);
@@ -288,7 +270,6 @@ void Emit::ReadHandle(const std::string &uuid, int descriptorHandle, const Data 
 
 void Emit::WriteHandle(const std::string &uuid, int descriptorHandle)
 {
-    LOGE("++ Emit::WriteHandle");
     mCallback->call([uuid, descriptorHandle](Napi::Env env, std::vector<napi_value> &args)
                     {
         // emit('handleWrite', deviceUuid, descriptorHandle);

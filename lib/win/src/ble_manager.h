@@ -24,6 +24,7 @@ class BLEManager
 public:
     // clang-format off
     BLEManager(const Napi::Value& receiver, const Napi::Function& callback);
+    void CleanUp();
     void Scan(const std::vector<winrt::guid>& serviceUUIDs, bool allowDuplicates);
     void StopScan();
     bool Connect(const std::string& uuid);
