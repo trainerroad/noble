@@ -5,32 +5,89 @@
 //  Created by Georg Vienna on 03.09.18.
 //
 #include "noble_winrt.h"
-
 #include "napi_winrt.h"
 
 #include <iostream>
 #include <sstream>
 #include <fstream>
 #include <cstdlib>
+#include <chrono>
+#include <ctime>
+#include <string>
+#include <Windows.h>
+
+HANDLE hFile = INVALID_HANDLE_VALUE;
+
+void openLogFile(const std::string &path)
+{
+    if (hFile == INVALID_HANDLE_VALUE)
+    {
+        hFile = CreateFileA(
+            path.c_str(),          // File path
+            GENERIC_WRITE,         // Write access
+            0,                     // No sharing
+            NULL,                  // Default security
+            OPEN_ALWAYS,           // Open existing or create new
+            FILE_ATTRIBUTE_NORMAL, // Normal file
+            NULL                   // No template file
+        );
+    }
+}
+
+void closeLogFile()
+{
+    if (hFile != INVALID_HANDLE_VALUE)
+    {
+        CloseHandle(hFile);
+        hFile = INVALID_HANDLE_VALUE;
+    }
+}
+
+std::string getCurrentDateTime()
+{
+    std::time_t current_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::string time_string = std::ctime(&current_time);
+
+    // Remove the newline character that std::ctime appends
+    time_string.pop_back();
+
+    return time_string;
+}
 
 void logMessage(const std::string &func, const std::string &message)
 {
     std::stringstream logMsg;
-    logMsg << "[" << __DATE__ << " " << __TIME__ << "] [" << func << "] " << message;
+    logMsg << "[" << getCurrentDateTime() << "] [" << func << "] " << message << std::endl;
 
     // Print to console
-    std::cout << logMsg.str() << std::endl;
+    std::cout << logMsg.str();
 
-    // If loggingPath is set, log to file
-    if (!loggingPath.empty())
+    if (hFile != INVALID_HANDLE_VALUE)
     {
-        std::ofstream logFile(loggingPath, std::ios_base::app);
-        if (logFile.is_open())
-        {
-            logFile << logMsg.str() << std::endl;
-        }
+        DWORD bytesWritten;
+        SetFilePointer(hFile, 0, NULL, FILE_END); // Move to the end for appending
+        WriteFile(hFile, logMsg.str().c_str(), logMsg.str().size(), &bytesWritten, NULL);
     }
 }
+
+// void logMessage(const std::string &func, const std::string &message)
+// {
+//     std::stringstream logMsg;
+//     logMsg << "[" << getCurrentDateTime() << "] [" << func << "] " << message;
+
+//     // Print to console
+//     std::cout << logMsg.str() << std::endl;
+
+//     // If loggingPath is set, log to file
+//     if (!loggingPath.empty())
+//     {
+//         std::ofstream logFile(loggingPath, std::ios_base::app);
+//         if (logFile.is_open())
+//         {
+//             logFile << logMsg.str() << std::endl;
+//         }
+//     }
+// }
 
 #define LOGE(message, ...)                                      \
     {                                                           \
@@ -107,6 +164,7 @@ Napi::Value NobleWinrt::Init(const Napi::CallbackInfo &info)
 Napi::Value NobleWinrt::SetLoggingPath(const Napi::CallbackInfo &info)
 {
     loggingPath = info[0].As<Napi::String>().Utf8Value();
+    openLogFile(loggingPath);
     return Napi::Value();
 }
 
@@ -302,6 +360,7 @@ Napi::Value NobleWinrt::CleanUp(const Napi::CallbackInfo &info)
     delete manager;
     manager = nullptr;
     LOGE("Complete");
+    closeLogFile();
     return Napi::Value();
 }
 

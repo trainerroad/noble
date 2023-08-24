@@ -83,5 +83,8 @@
     "module_path": "./build/Release/",
     "host": "https://github.com/trainerroad/noble/releases/download/",
     "remote_path": "v{version}"
+  },
+  "prettier": {
+    "printWidth": 200
   }
 }
