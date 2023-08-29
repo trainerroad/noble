@@ -51,6 +51,11 @@ Napi::Value NobleMac::Init(const Napi::CallbackInfo& info) {
     return Napi::Value();
 }
 
+Napi::Value NobleMac::SetLoggingPath(const Napi::CallbackInfo &info)
+{
+    return Napi::Value();
+}
+
 // startScanning(serviceUuids, allowDuplicates)
 Napi::Value NobleMac::Scan(const Napi::CallbackInfo& info) {
     CHECK_MANAGER()
@@ -229,6 +234,16 @@ Napi::Value NobleMac::Stop(const Napi::CallbackInfo& info) {
     CHECK_MANAGER()
     CFRelease((__bridge CFTypeRef)manager);
     manager = nil;
+    return Napi::Value();
+}
+
+Napi::Value NobleMac::CleanUp(const Napi::CallbackInfo &info)
+{
+    CHECK_MANAGER()
+    manager->CleanUp();
+    delete manager;
+    manager = nullptr;
+    LOGE("Complete");
     return Napi::Value();
 }
 
