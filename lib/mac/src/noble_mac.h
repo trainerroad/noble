@@ -10,7 +10,7 @@ public:
     NobleMac(const Napi::CallbackInfo &);
     Napi::Value Init(const Napi::CallbackInfo &);
     Napi::Value CleanUp(const Napi::CallbackInfo &);
-    Napi::Value SetLoggingPath(const Napi::CallbackInfo &info);
+    Napi::Value SetLoggingPath(const Napi::CallbackInfo &);
     Napi::Value Scan(const Napi::CallbackInfo &);
     Napi::Value StopScan(const Napi::CallbackInfo &);
     Napi::Value Connect(const Napi::CallbackInfo &);
