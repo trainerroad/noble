@@ -251,7 +251,7 @@ Napi::Function NobleMac::GetClass(Napi::Env env) {
     return DefineClass(env, "NobleMac", {
         NobleMac::InstanceMethod("init", &NobleMac::Init),
         NobleMac::InstanceMethod("setLoggingPath", &NobleMac::SetLoggingPath),
-        NobleMac::InstanceMethod("cleanUp", &NobleMac::Cleanup),
+        NobleMac::InstanceMethod("cleanUp", &NobleMac::CleanUp),
         NobleMac::InstanceMethod("startScanning", &NobleMac::Scan),
         NobleMac::InstanceMethod("stopScanning", &NobleMac::StopScan),
         NobleMac::InstanceMethod("connect", &NobleMac::Connect),
