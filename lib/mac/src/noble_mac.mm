@@ -239,11 +239,11 @@ Napi::Value NobleMac::Stop(const Napi::CallbackInfo& info) {
 
 Napi::Value NobleMac::CleanUp(const Napi::CallbackInfo &info)
 {
-    CHECK_MANAGER()
-    manager->CleanUp();
-    delete manager;
-    manager = nullptr;
-    LOGE("Complete");
+    // CHECK_MANAGER()
+    // manager->CleanUp();
+    // delete manager;
+    // manager = nullptr;
+    // LOGE("Complete");
     return Napi::Value();
 }
 
