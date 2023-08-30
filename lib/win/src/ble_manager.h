@@ -9,6 +9,9 @@
 
 #include <winrt/Windows.Devices.Bluetooth.Advertisement.h>
 #include <winrt/Windows.Devices.Bluetooth.GenericAttributeProfile.h>
+#include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.Foundation.Collections.h>
+#include <winrt/Windows.Storage.Streams.h>
 
 #include "callbacks.h"
 #include "peripheral_winrt.h"
@@ -62,11 +65,12 @@ private:
     void OnWriteValue(IAsyncOperation<GattWriteResult> asyncOp, AsyncStatus status, std::string uuid, std::string serviceId, std::string characteristicId, std::string descriptorId);
     void OnReadHandle(IAsyncOperation<GattReadResult> asyncOp, AsyncStatus status, std::string uuid, int handle);
     void OnWriteHandle(IAsyncOperation<GattWriteResult> asyncOp, AsyncStatus status, std::string uuid, int handle);
-    // clang-format on
+    // clang-format on  
 
     Emit mEmit;
     RadioWatcher mWatcher;
     AdapterState mRadioState;
+    DeviceWatcher mBleWatcher;
     BluetoothLEAdvertisementWatcher mAdvertismentWatcher;
     winrt::event_revoker<IBluetoothLEAdvertisementWatcher> mReceivedRevoker;
     winrt::event_revoker<IBluetoothLEAdvertisementWatcher> mStoppedRevoker;
@@ -75,4 +79,17 @@ private:
     std::unordered_map<std::string, PeripheralWinrt> mDeviceMap;
     std::set<std::string> mAdvertismentMap;
     NotifyMap mNotifyMap;
+
+    DeviceWatcher CreateDeviceWatcher()
+    {
+        auto requestedProperties = winrt::single_threaded_vector<winrt::hstring>({L"System.Devices.Aep.DeviceAddress",
+                                                                                  L"System.Devices.Aep.SignalStrength"});
+
+        winrt::hstring bluetoothLeDeviceWatcherAqs = L"(System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\")";
+
+        return DeviceInformation::CreateWatcher(
+            bluetoothLeDeviceWatcherAqs,
+            requestedProperties,
+            DeviceInformationKind::AssociationEndpoint);
+    }
 };

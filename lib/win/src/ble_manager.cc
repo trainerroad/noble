@@ -11,8 +11,7 @@
 #include "ble_manager.h"
 #include "winrt_cpp.h"
 
-#include <winrt/Windows.Foundation.Collections.h>
-#include <winrt/Windows.Storage.Streams.h>
+using namespace winrt::Windows::Foundation::Collections;
 using winrt::Windows::Devices::Bluetooth::BluetoothCacheMode;
 using winrt::Windows::Devices::Bluetooth::BluetoothConnectionStatus;
 using winrt::Windows::Devices::Bluetooth::BluetoothLEDevice;
@@ -86,16 +85,33 @@ void cleanup()
     LOGE("Exiting");
 }
 
-BLEManager::BLEManager(const Napi::Value &receiver, const Napi::Function &callback)
+void DeviceWatcher_Updated(DeviceWatcher const &, DeviceInformationUpdate const &)
 {
-    LOGE("Instantiated");
+    // empty - DeviceWatcher requires at least one of its events hooked-up in order to start.
+}
+
+BLEManager::BLEManager(const Napi::Value &receiver, const Napi::Function &callback) : mBleWatcher(BLEManager::CreateDeviceWatcher())
+{
+    LOGE("Instantiated with bleWatcher");
     std::atexit(cleanup); // will try to log when the library is exiting, does not work in all cases.
 
     mRadioState = AdapterState::Initial;
     mEmit.Wrap(receiver, callback);
     auto onRadio = std::bind(&BLEManager::OnRadio, this, std::placeholders::_1);
     mWatcher.Start(onRadio);
+
+    mBleWatcher.Updated({&DeviceWatcher_Updated});
+    mBleWatcher.Start();
+
     mAdvertismentWatcher.ScanningMode(BluetoothLEScanningMode::Active);
+    winrt::Windows::Devices::Bluetooth::BluetoothSignalStrengthFilter signalStrengthFilter{};
+    signalStrengthFilter.InRangeThresholdInDBm(nullptr);
+    signalStrengthFilter.OutOfRangeThresholdInDBm(nullptr);
+    signalStrengthFilter.OutOfRangeTimeout(nullptr);
+    signalStrengthFilter.SamplingInterval(winrt::Windows::Foundation::TimeSpan{0});
+
+    mAdvertismentWatcher.SignalStrengthFilter(signalStrengthFilter);
+
     auto onReceived = bind2(this, &BLEManager::OnScanResult);
     mReceivedRevoker = mAdvertismentWatcher.Received(winrt::auto_revoke, onReceived);
     auto onStopped = bind2(this, &BLEManager::OnScanStopped);
@@ -205,6 +221,7 @@ void BLEManager::StopScan()
 {
     LOGE("");
     mAdvertismentWatcher.Stop();
+    mBleWatcher.Stop();
 }
 
 void BLEManager::OnScanStopped(BluetoothLEAdvertisementWatcher watcher,
