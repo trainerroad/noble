@@ -260,17 +260,27 @@ void BLEManager::OnConnected(IAsyncOperation<BluetoothLEDevice> asyncOp, AsyncSt
     LOGE("[%s]", uuid.c_str());
     if (status == AsyncStatus::Completed)
     {
+        LOGE("[%s] status is completed, getting results", uuid.c_str());
         BluetoothLEDevice device = asyncOp.GetResults();
+        LOGE("[%s] status is completed, got results", uuid.c_str());
         // device can be null if the connection failed
         if (device)
         {
+            LOGE("[%s] device is not null 1", uuid.c_str());
             auto onChanged = bind2(this, &BLEManager::OnConnectionStatusChanged);
+            LOGE("[%s] device is not null 2", uuid.c_str());
             auto token = device.ConnectionStatusChanged(onChanged);
+            LOGE("[%s] device is not null 3", uuid.c_str());
             auto uuid = formatBluetoothUuid(device.BluetoothAddress());
+            LOGE("[%s] device is not null 4", uuid.c_str());
             PeripheralWinrt &peripheral = mDeviceMap[uuid];
+            LOGE("[%s] device is not null 5", uuid.c_str());
             peripheral.device = device;
+            LOGE("[%s] device is not null 6", uuid.c_str());
             peripheral.connectionToken = token;
-            mEmit.Connected(uuid);
+            LOGE("[%s] device is not null 7", uuid.c_str());
+            mEmit.Connected(uuid, "");
+            LOGE("[%s] device is not null 8", uuid.c_str());
         }
         else
         {

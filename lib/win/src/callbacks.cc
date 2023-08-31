@@ -128,10 +128,13 @@ void Emit::Scan(const std::string &uuid, int rssi, const Peripheral &peripheral)
 
 void Emit::Connected(const std::string &uuid, const std::string &error)
 {
+    std::cout << "Emit::Connected" << std::endl;
+    std::cout << "Emit::Connected: " << uuid << ", error: [" << error << "]" << std::endl;
     mCallback->call([uuid, error](Napi::Env env, std::vector<napi_value> &args)
                     {
+                        std::cout << "Emit::Connected, mCallback->call: " << uuid << ", error: [" << error << "]" << std::endl;
         // emit('connect', deviceUuid) error added here
-        args = { _s("connect"), _u(uuid), error.empty() ? env.Null() : _s(error) }; });
+        args = { _s("connect"), _u(uuid), _s(error) }; });
 }
 
 void Emit::Disconnected(const std::string &uuid)
