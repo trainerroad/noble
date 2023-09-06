@@ -14,17 +14,6 @@ using winrt::Windows::Devices::Bluetooth::GenericAttributeProfile::GattDeviceSer
 using winrt::Windows::Foundation::AsyncStatus;
 using winrt::Windows::Foundation::IAsyncOperation;
 
-// #define LOGE(message, ...) printf(__FUNCTION__ ": " message "\n", __VA_ARGS__)
-extern std::string loggingPath;
-extern void logMessage(const std::string &func, const std::string &message);
-
-#define LOGE(message, ...)                                      \
-    {                                                           \
-        char buffer[1024];                                      \
-        snprintf(buffer, sizeof(buffer), message, __VA_ARGS__); \
-        logMessage(__FUNCTION__, buffer);                       \
-    }
-
 PeripheralWinrt::PeripheralWinrt(uint64_t bluetoothAddress,
                                  BluetoothLEAdvertisementType advertismentType, const int rssiValue,
                                  const BluetoothLEAdvertisement &advertisment)
@@ -90,17 +79,14 @@ void PeripheralWinrt::Update(const int rssiValue, const BluetoothLEAdvertisement
 
 void PeripheralWinrt::Disconnect()
 {
-    LOGE("Disconnecting device [%s] [%s], closing %zd services", address.c_str(), name.c_str(), cachedServices.size());
     for (auto &[key, value] : cachedServices)
     {
         try
         {
-            LOGE("Closing service [%s] [%s]: [%s]", address.c_str(), name.c_str(), toStr(value.service.Uuid()).c_str());
             value.service.Close();
         }
         catch (...)
         {
-            LOGE("Disconnect closing service failed");
         }
     }
 
@@ -120,17 +106,14 @@ void PeripheralWinrt::Disconnect()
     }
     catch (...)
     {
-        LOGE("Closing device failed");
     }
 
     device = std::nullopt;
-    LOGE("Disconnect complete [%s] [%s].", address.c_str(), name.c_str());
 }
 
 void PeripheralWinrt::GetServiceFromDevice(
     winrt::guid serviceUuid, std::function<void(std::optional<GattDeviceService>)> callback)
 {
-    LOGE("[%s]", toStr(serviceUuid).c_str());
     if (device.has_value())
     {
         device->GetGattServicesForUuidAsync(serviceUuid, BluetoothCacheMode::Cached)
@@ -144,24 +127,20 @@ void PeripheralWinrt::GetServiceFromDevice(
                     {
                         GattDeviceService s = service.Current();
                         cachedServices.insert(std::make_pair(serviceUuid, CachedService(s)));
-                        LOGE("Successfully retrieved service [%s] from device [%s] [%s]", toStr(serviceUuid).c_str(), address.c_str(), name.c_str());
                         callback(s);
                     }
                     else
                     {
-                        LOGE("GetGattServicesForUuidAsync: no service with given id");
                         callback(std::nullopt);
                     }
                 }
                 else
                 {
-                    LOGE("GetGattServicesForUuidAsync: failed with status: %d\n", status);
                     callback(std::nullopt);
                 } });
     }
     else
     {
-        LOGE("GetGattServicesForUuidAsync: no device currently connected");
         callback(std::nullopt);
     }
 }
@@ -169,11 +148,9 @@ void PeripheralWinrt::GetServiceFromDevice(
 void PeripheralWinrt::GetService(winrt::guid serviceUuid,
                                  std::function<void(std::optional<GattDeviceService>)> callback)
 {
-    LOGE("[%s]", toStr(serviceUuid).c_str());
     auto it = cachedServices.find(serviceUuid);
     if (it != cachedServices.end())
     {
-        LOGE("Found in cached service [%s]", toStr(serviceUuid).c_str());
         callback(it->second.service);
     }
     else
@@ -186,7 +163,6 @@ void PeripheralWinrt::GetCharacteristicFromService(
     GattDeviceService service, winrt::guid characteristicUuid,
     std::function<void(std::optional<GattCharacteristic>)> callback)
 {
-    LOGE("serviceUuid: [%s], characteristicUuid: [%s]", toStr(service.Uuid()).c_str(), toStr(characteristicUuid).c_str());
     service.GetCharacteristicsForUuidAsync(characteristicUuid, BluetoothCacheMode::Cached)
         .Completed([=](IAsyncOperation<GattCharacteristicsResult> result, auto &status)
                    {
@@ -205,24 +181,19 @@ void PeripheralWinrt::GetCharacteristicFromService(
                 }
                 else
                 {
-                    LOGE("GetCharacteristicsForUuidAsync: no characteristic with given id");
                     callback(std::nullopt);
                 }
             }
             else
             {
-                LOGE("GetCharacteristicsForUuidAsync: failed with status: %d\n", status);
                 callback(std::nullopt);
             } });
-
-    LOGE("Complete serviceUuid: [%s], characteristicUuid: [%s]", toStr(service.Uuid()).c_str(), toStr(characteristicUuid).c_str());
 }
 
 void PeripheralWinrt::GetCharacteristic(
     winrt::guid serviceUuid, winrt::guid characteristicUuid,
     std::function<void(std::optional<GattCharacteristic>)> callback)
 {
-    LOGE("serviceUuid: [%s], characteristicUuid: [%s]", toStr(serviceUuid).c_str(), toStr(characteristicUuid).c_str());
     auto it = cachedServices.find(serviceUuid);
     if (it != cachedServices.end())
     {
@@ -247,18 +218,15 @@ void PeripheralWinrt::GetCharacteristic(
             }
             else
             {
-                LOGE("GetCharacteristic: get service failed");
                 callback(nullptr);
             } });
     }
-    LOGE("Complete serviceUuid: [%s], characteristicUuid: [%s]", toStr(serviceUuid).c_str(), toStr(characteristicUuid).c_str());
 }
 
 void PeripheralWinrt::GetDescriptorFromCharacteristic(
     GattCharacteristic characteristic, winrt::guid descriptorUuid,
     std::function<void(std::optional<GattDescriptor>)> callback)
 {
-    LOGE("");
     characteristic.GetDescriptorsForUuidAsync(descriptorUuid, BluetoothCacheMode::Cached)
         .Completed([=](IAsyncOperation<GattDescriptorsResult> result, auto &status)
                    {
@@ -279,23 +247,19 @@ void PeripheralWinrt::GetDescriptorFromCharacteristic(
                 }
                 else
                 {
-                    LOGE("GetDescriptorsForUuidAsync: no characteristic with given id");
                     callback(std::nullopt);
                 }
             }
             else
             {
-                LOGE("GetDescriptorsForUuidAsync: failed with status: %d\n", status);
                 callback(std::nullopt);
             } });
-    LOGE("Complete");
 }
 
 void PeripheralWinrt::GetDescriptor(winrt::guid serviceUuid, winrt::guid characteristicUuid,
                                     winrt::guid descriptorUuid,
                                     std::function<void(std::optional<GattDescriptor>)> callback)
 {
-    LOGE("");
     auto it = cachedServices.find(serviceUuid);
     if (it != cachedServices.end())
     {
@@ -317,7 +281,6 @@ void PeripheralWinrt::GetDescriptor(winrt::guid serviceUuid, winrt::guid charact
                     }
                     else
                     {
-                        LOGE("GetDescriptor: get characteristic failed 1");
                         callback(nullptr);
                     }
                 });
@@ -339,16 +302,13 @@ void PeripheralWinrt::GetDescriptor(winrt::guid serviceUuid, winrt::guid charact
                         }
                         else
                         {
-                            LOGE("GetDescriptor: get characteristic failed 2");
                             callback(nullptr);
                         }
                     });
             }
             else
             {
-                LOGE("GetDescriptor: get service failed");
                 callback(nullptr);
             } });
     }
-    LOGE("Complete");
 }

@@ -27,7 +27,6 @@ export declare function stopScanning(callback?: () => void): void;
 export declare function stopScanningAsync(): Promise<void>;
 export declare function cancelConnect(peripheralUuid: string, options?: object): void;
 export declare function reset(): void;
-export declare function setLoggingPath(path?: string): void;
 export declare function cleanUp(): void;
 
 export declare function on(event: 'stateChange', listener: (state: string) => void): events.EventEmitter;
