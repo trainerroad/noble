@@ -68,9 +68,9 @@ public:
     void Connected(const std::string& uuid, const std::string& error = "");
     void Disconnected(const std::string& uuid);
     void RSSI(const std::string& uuid, int rssi);
-    void ServicesDiscovered(const std::string& uuid, const std::vector<std::string>& serviceUuids);
+    void ServicesDiscovered(const std::string& uuid, const std::vector<std::string>& serviceUuids, const std::string& error = "");
     void IncludedServicesDiscovered(const std::string& uuid, const std::string& serviceUuid, const std::vector<std::string>& serviceUuids);
-    void CharacteristicsDiscovered(const std::string& uuid, const std::string& serviceUuid, const std::vector<std::pair<std::string, std::vector<std::string>>>& characteristics);
+    void CharacteristicsDiscovered(const std::string& uuid, const std::string& serviceUuid, const std::vector<std::pair<std::string, std::vector<std::string>>>& characteristics, const std::string& error = "");
     void Read(const std::string& uuid, const std::string& serviceUuid, const std::string& characteristicUuid, const Data& data, bool isNotification);
     void Write(const std::string& uuid, const std::string& serviceUuid, const std::string& characteristicUuid);
     void Notify(const std::string& uuid, const std::string& serviceUuid, const std::string& characteristicUuid, bool state);
