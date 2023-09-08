@@ -75,12 +75,34 @@ void PeripheralWinrt::Update(const int rssiValue, const BluetoothLEAdvertisement
     rssi = rssiValue;
 }
 
+
 void PeripheralWinrt::Disconnect()
 {
+    for (auto &[key, value] : cachedServices)
+    {
+        try
+        {
+            value.service.Close();
+        }
+        catch (...)
+        {
+        }
+    }
     cachedServices.clear();
     if (device.has_value() && connectionToken)
     {
         device->ConnectionStatusChanged(connectionToken);
+    }
+
+    try
+    {
+        if (device.has_value())
+        {
+            device->Close();
+        }
+    }
+    catch (...)
+    {
     }
     device = std::nullopt;
 }

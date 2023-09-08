@@ -137,10 +137,10 @@ void Emit::RSSI(const std::string & uuid, int rssi) {
     });
 }
 
-void Emit::ServicesDiscovered(const std::string & uuid, const std::vector<std::string>& serviceUuids) {
+void Emit::ServicesDiscovered(const std::string & uuid, const std::vector<std::string>& serviceUuids, const std::string& error) {
     mCallback->call([uuid, serviceUuids](Napi::Env env, std::vector<napi_value>& args) {
         // emit('servicesDiscover', deviceUuid, serviceUuids)
-        args = { _s("servicesDiscover"), _u(uuid), toUuidArray(env, serviceUuids) };
+        args = { _s("servicesDiscover"), _u(uuid), toUuidArray(env, serviceUuids), error.empty() ? env.Null() : _s(error) };
     });
 }
 
@@ -151,7 +151,7 @@ void Emit::IncludedServicesDiscovered(const std::string & uuid, const std::strin
     });
 }
 
-void Emit::CharacteristicsDiscovered(const std::string & uuid, const std::string & serviceUuid, const std::vector<std::pair<std::string, std::vector<std::string>>>& characteristics) {
+void Emit::CharacteristicsDiscovered(const std::string & uuid, const std::string & serviceUuid, const std::vector<std::pair<std::string, std::vector<std::string>>>& characteristics, const std::string& error) {
     mCallback->call([uuid, serviceUuid, characteristics](Napi::Env env, std::vector<napi_value>& args) {
         auto arr = characteristics.empty() ? Napi::Array::New(env) : Napi::Array::New(env, characteristics.size());
         for (size_t i = 0; i < characteristics.size(); i++) {
@@ -161,7 +161,7 @@ void Emit::CharacteristicsDiscovered(const std::string & uuid, const std::string
             arr.Set(i, characteristic);
         }
         // emit('characteristicsDiscover', deviceUuid, serviceUuid, { uuid, properties: ['broadcast', 'read', ...]})
-        args = { _s("characteristicsDiscover"), _u(uuid), _u(serviceUuid), arr };
+        args = { _s("characteristicsDiscover"), _u(uuid), _u(serviceUuid), arr, error.empty() ? env.Null() : _s(error) };
     });
 }
 

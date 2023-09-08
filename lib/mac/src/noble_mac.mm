@@ -232,6 +232,15 @@ Napi::Value NobleMac::Stop(const Napi::CallbackInfo& info) {
     return Napi::Value();
 }
 
+Napi::Value NobleMac::CleanUp(const Napi::CallbackInfo &info)
+{
+    // CHECK_MANAGER()
+    // manager->CleanUp();
+    // delete manager;
+    // manager = nullptr;
+    return Napi::Value();
+}
+
 Napi::Function NobleMac::GetClass(Napi::Env env) {
     return DefineClass(env, "NobleMac", {
         NobleMac::InstanceMethod("init", &NobleMac::Init),

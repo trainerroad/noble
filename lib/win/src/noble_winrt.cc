@@ -51,11 +51,11 @@
         THROW("BLEManager has already been cleaned up"); \
     }
 
-NobleWinrt::NobleWinrt(const Napi::CallbackInfo& info) : ObjectWrap(info)
+NobleWinrt::NobleWinrt(const Napi::CallbackInfo &info) : ObjectWrap(info)
 {
 }
 
-Napi::Value NobleWinrt::Init(const Napi::CallbackInfo& info)
+Napi::Value NobleWinrt::Init(const Napi::CallbackInfo &info)
 {
     Napi::Function emit = info.This().As<Napi::Object>().Get("emit").As<Napi::Function>();
     manager = new BLEManager(info.This(), emit);
@@ -63,7 +63,7 @@ Napi::Value NobleWinrt::Init(const Napi::CallbackInfo& info)
 }
 
 // startScanning(serviceUuids, allowDuplicates)
-Napi::Value NobleWinrt::Scan(const Napi::CallbackInfo& info)
+Napi::Value NobleWinrt::Scan(const Napi::CallbackInfo &info)
 {
     CHECK_MANAGER()
     auto vector = getUuidArray(info[0]);
@@ -74,7 +74,7 @@ Napi::Value NobleWinrt::Scan(const Napi::CallbackInfo& info)
 }
 
 // stopScanning()
-Napi::Value NobleWinrt::StopScan(const Napi::CallbackInfo& info)
+Napi::Value NobleWinrt::StopScan(const Napi::CallbackInfo &info)
 {
     CHECK_MANAGER()
     manager->StopScan();
@@ -82,7 +82,7 @@ Napi::Value NobleWinrt::StopScan(const Napi::CallbackInfo& info)
 }
 
 // connect(deviceUuid)
-Napi::Value NobleWinrt::Connect(const Napi::CallbackInfo& info)
+Napi::Value NobleWinrt::Connect(const Napi::CallbackInfo &info)
 {
     CHECK_MANAGER()
     ARG1(String)
@@ -92,7 +92,7 @@ Napi::Value NobleWinrt::Connect(const Napi::CallbackInfo& info)
 }
 
 // disconnect(deviceUuid)
-Napi::Value NobleWinrt::Disconnect(const Napi::CallbackInfo& info)
+Napi::Value NobleWinrt::Disconnect(const Napi::CallbackInfo &info)
 {
     CHECK_MANAGER()
     ARG1(String)
@@ -102,7 +102,7 @@ Napi::Value NobleWinrt::Disconnect(const Napi::CallbackInfo& info)
 }
 
 // updateRssi(deviceUuid)
-Napi::Value NobleWinrt::UpdateRSSI(const Napi::CallbackInfo& info)
+Napi::Value NobleWinrt::UpdateRSSI(const Napi::CallbackInfo &info)
 {
     CHECK_MANAGER()
     ARG1(String)
@@ -112,7 +112,7 @@ Napi::Value NobleWinrt::UpdateRSSI(const Napi::CallbackInfo& info)
 }
 
 // discoverServices(deviceUuid, uuids)
-Napi::Value NobleWinrt::DiscoverServices(const Napi::CallbackInfo& info)
+Napi::Value NobleWinrt::DiscoverServices(const Napi::CallbackInfo &info)
 {
     CHECK_MANAGER()
     ARG1(String)
@@ -123,7 +123,7 @@ Napi::Value NobleWinrt::DiscoverServices(const Napi::CallbackInfo& info)
 }
 
 // discoverIncludedServices(deviceUuid, serviceUuid, serviceUuids)
-Napi::Value NobleWinrt::DiscoverIncludedServices(const Napi::CallbackInfo& info)
+Napi::Value NobleWinrt::DiscoverIncludedServices(const Napi::CallbackInfo &info)
 {
     CHECK_MANAGER()
     ARG2(String, String)
@@ -135,7 +135,7 @@ Napi::Value NobleWinrt::DiscoverIncludedServices(const Napi::CallbackInfo& info)
 }
 
 // discoverCharacteristics(deviceUuid, serviceUuid, characteristicUuids)
-Napi::Value NobleWinrt::DiscoverCharacteristics(const Napi::CallbackInfo& info)
+Napi::Value NobleWinrt::DiscoverCharacteristics(const Napi::CallbackInfo &info)
 {
     CHECK_MANAGER()
     ARG2(String, String)
@@ -147,7 +147,7 @@ Napi::Value NobleWinrt::DiscoverCharacteristics(const Napi::CallbackInfo& info)
 }
 
 // read(deviceUuid, serviceUuid, characteristicUuid)
-Napi::Value NobleWinrt::Read(const Napi::CallbackInfo& info)
+Napi::Value NobleWinrt::Read(const Napi::CallbackInfo &info)
 {
     CHECK_MANAGER()
     ARG3(String, String, String)
@@ -159,7 +159,7 @@ Napi::Value NobleWinrt::Read(const Napi::CallbackInfo& info)
 }
 
 // write(deviceUuid, serviceUuid, characteristicUuid, data, withoutResponse)
-Napi::Value NobleWinrt::Write(const Napi::CallbackInfo& info)
+Napi::Value NobleWinrt::Write(const Napi::CallbackInfo &info)
 {
     CHECK_MANAGER()
     ARG5(String, String, String, Buffer, Boolean)
@@ -173,7 +173,7 @@ Napi::Value NobleWinrt::Write(const Napi::CallbackInfo& info)
 }
 
 // notify(deviceUuid, serviceUuid, characteristicUuid, notify)
-Napi::Value NobleWinrt::Notify(const Napi::CallbackInfo& info)
+Napi::Value NobleWinrt::Notify(const Napi::CallbackInfo &info)
 {
     CHECK_MANAGER()
     ARG4(String, String, String, Boolean)
@@ -186,7 +186,7 @@ Napi::Value NobleWinrt::Notify(const Napi::CallbackInfo& info)
 }
 
 // discoverDescriptors(deviceUuid, serviceUuid, characteristicUuid)
-Napi::Value NobleWinrt::DiscoverDescriptors(const Napi::CallbackInfo& info)
+Napi::Value NobleWinrt::DiscoverDescriptors(const Napi::CallbackInfo &info)
 {
     CHECK_MANAGER()
     ARG3(String, String, String)
@@ -198,7 +198,7 @@ Napi::Value NobleWinrt::DiscoverDescriptors(const Napi::CallbackInfo& info)
 }
 
 // readValue(deviceUuid, serviceUuid, characteristicUuid, descriptorUuid)
-Napi::Value NobleWinrt::ReadValue(const Napi::CallbackInfo& info)
+Napi::Value NobleWinrt::ReadValue(const Napi::CallbackInfo &info)
 {
     CHECK_MANAGER()
     ARG4(String, String, String, String)
@@ -211,7 +211,7 @@ Napi::Value NobleWinrt::ReadValue(const Napi::CallbackInfo& info)
 }
 
 // writeValue(deviceUuid, serviceUuid, characteristicUuid, descriptorUuid, data)
-Napi::Value NobleWinrt::WriteValue(const Napi::CallbackInfo& info)
+Napi::Value NobleWinrt::WriteValue(const Napi::CallbackInfo &info)
 {
     CHECK_MANAGER()
     ARG5(String, String, String, String, Buffer)
@@ -225,7 +225,7 @@ Napi::Value NobleWinrt::WriteValue(const Napi::CallbackInfo& info)
 }
 
 // readHandle(deviceUuid, handle)
-Napi::Value NobleWinrt::ReadHandle(const Napi::CallbackInfo& info)
+Napi::Value NobleWinrt::ReadHandle(const Napi::CallbackInfo &info)
 {
     CHECK_MANAGER()
     ARG2(String, Number)
@@ -236,7 +236,7 @@ Napi::Value NobleWinrt::ReadHandle(const Napi::CallbackInfo& info)
 }
 
 // writeHandle(deviceUuid, handle, data, (unused)withoutResponse)
-Napi::Value NobleWinrt::WriteHandle(const Napi::CallbackInfo& info)
+Napi::Value NobleWinrt::WriteHandle(const Napi::CallbackInfo &info)
 {
     CHECK_MANAGER()
     ARG3(String, Number, Buffer)
@@ -247,9 +247,10 @@ Napi::Value NobleWinrt::WriteHandle(const Napi::CallbackInfo& info)
     return Napi::Value();
 }
 
-Napi::Value NobleWinrt::CleanUp(const Napi::CallbackInfo& info)
+Napi::Value NobleWinrt::CleanUp(const Napi::CallbackInfo &info)
 {
     CHECK_MANAGER()
+    manager->CleanUp();
     delete manager;
     manager = nullptr;
     return Napi::Value();

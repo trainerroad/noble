@@ -8,8 +8,10 @@
 #include "ble_manager.h"
 #include "winrt_cpp.h"
 
-#include <winrt/Windows.Foundation.Collections.h>
-#include <winrt/Windows.Storage.Streams.h>
+#include <iostream>
+
+#include <winrt/Windows.Devices.Bluetooth.h>
+
 using winrt::Windows::Devices::Bluetooth::BluetoothCacheMode;
 using winrt::Windows::Devices::Bluetooth::BluetoothConnectionStatus;
 using winrt::Windows::Devices::Bluetooth::BluetoothLEDevice;
@@ -68,13 +70,51 @@ template <typename O, typename M, class... Types> auto bind2(O* object, M method
     else                          \
         for (auto&& object : _vector)
 
-BLEManager::BLEManager(const Napi::Value& receiver, const Napi::Function& callback)
+void DeviceWatcher_Updated(DeviceWatcher const &, DeviceInformationUpdate const &)
+{
+    // empty - DeviceWatcher requires at least one of its events hooked-up in order to start.
+}
+
+void BLEManager::SetupDeviceWatcher() {
+    auto requestedProperties = winrt::single_threaded_vector<winrt::hstring>({L"System.Devices.Aep.DeviceAddress",
+                                                                                L"System.Devices.Aep.SignalStrength"});
+
+    winrt::hstring bluetoothLeDeviceWatcherAqs = L"(System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\")";
+
+    mBleWatcher = winrt::Windows::Devices::Enumeration::DeviceInformation::CreateWatcher(
+        bluetoothLeDeviceWatcherAqs,
+        requestedProperties,
+        DeviceInformationKind::AssociationEndpoint);
+}
+
+BLEManager::BLEManager(const Napi::Value& receiver, const Napi::Function& callback) //  : mBleWatcher(BLEManager::CreateDeviceWatcher())
 {
     mRadioState = AdapterState::Initial;
     mEmit.Wrap(receiver, callback);
     auto onRadio = std::bind(&BLEManager::OnRadio, this, std::placeholders::_1);
     mWatcher.Start(onRadio);
+
+    auto requestedProperties = winrt::single_threaded_vector<winrt::hstring>({L"System.Devices.Aep.DeviceAddress",
+                                                                                L"System.Devices.Aep.SignalStrength"});
+
+    winrt::hstring bluetoothLeDeviceWatcherAqs = L"(System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\")";
+
+    mBleWatcher = winrt::Windows::Devices::Enumeration::DeviceInformation::CreateWatcher(
+        bluetoothLeDeviceWatcherAqs,
+        requestedProperties,
+        DeviceInformationKind::AssociationEndpoint);
+
+    resolver = mBleWatcher.Updated({&DeviceWatcher_Updated});
+
     mAdvertismentWatcher.ScanningMode(BluetoothLEScanningMode::Active);
+    winrt::Windows::Devices::Bluetooth::BluetoothSignalStrengthFilter signalStrengthFilter{};
+    signalStrengthFilter.InRangeThresholdInDBm(nullptr);
+    signalStrengthFilter.OutOfRangeThresholdInDBm(nullptr);
+    signalStrengthFilter.OutOfRangeTimeout(nullptr);
+    signalStrengthFilter.SamplingInterval(winrt::Windows::Foundation::TimeSpan{0});
+
+    mAdvertismentWatcher.SignalStrengthFilter(signalStrengthFilter);
+
     auto onReceived = bind2(this, &BLEManager::OnScanResult);
     mReceivedRevoker = mAdvertismentWatcher.Received(winrt::auto_revoke, onReceived);
     auto onStopped = bind2(this, &BLEManager::OnScanStopped);
@@ -115,6 +155,19 @@ void BLEManager::OnRadio(Radio& radio)
     }
 }
 
+void BLEManager::CleanUp()
+{
+    for (auto &[key, device] : mDeviceMap)
+    {
+        if (device.device.has_value() && device.device.value().ConnectionStatus() == BluetoothConnectionStatus::Connected)
+        {
+            device.Disconnect();
+        }
+    }
+
+    mDeviceMap.clear();
+}
+
 void BLEManager::Scan(const std::vector<winrt::guid>& serviceUUIDs, bool allowDuplicates)
 {
     mAdvertismentMap.clear();
@@ -129,6 +182,7 @@ void BLEManager::Scan(const std::vector<winrt::guid>& serviceUUIDs, bool allowDu
     filter.Advertisement(advertisment);
     mAdvertismentWatcher.AdvertisementFilter(filter);
     mAdvertismentWatcher.Start();
+    mBleWatcher.Start();
     mEmit.ScanState(true);
 }
 
@@ -160,6 +214,27 @@ void BLEManager::OnScanResult(BluetoothLEAdvertisementWatcher watcher,
     }
 }
 
+std::string DeviceWatcherStatusToString(winrt::Windows::Devices::Enumeration::DeviceWatcherStatus status)
+{
+    switch(status)
+    {
+    case winrt::Windows::Devices::Enumeration::DeviceWatcherStatus::Created:
+        return "Created";
+    case winrt::Windows::Devices::Enumeration::DeviceWatcherStatus::Started:
+        return "Started";
+    case winrt::Windows::Devices::Enumeration::DeviceWatcherStatus::EnumerationCompleted:
+        return "EnumerationCompleted";
+    case winrt::Windows::Devices::Enumeration::DeviceWatcherStatus::Stopping:
+        return "Stopping";
+    case winrt::Windows::Devices::Enumeration::DeviceWatcherStatus::Stopped:
+        return "Stopped";
+    case winrt::Windows::Devices::Enumeration::DeviceWatcherStatus::Aborted:
+        return "Aborted";
+    default:
+        return "Unknown";
+    }
+}
+
 void BLEManager::StopScan()
 {
     mAdvertismentWatcher.Stop();
@@ -169,6 +244,9 @@ void BLEManager::OnScanStopped(BluetoothLEAdvertisementWatcher watcher,
                                const BluetoothLEAdvertisementWatcherStoppedEventArgs& args)
 {
     mEmit.ScanState(false);
+    std::cout << "bleWatcher 2:  " << DeviceWatcherStatusToString(mBleWatcher.Status()) << std::endl;
+    mBleWatcher.Stop();
+    std::cout << "bleWatcher 3:  " << DeviceWatcherStatusToString(mBleWatcher.Status()) << std::endl;
 }
 
 bool BLEManager::Connect(const std::string& uuid)
@@ -274,11 +352,19 @@ void BLEManager::OnServicesDiscovered(IAsyncOperation<GattDeviceServicesResult> 
                                       AsyncStatus status, const std::string uuid,
                                       const std::vector<winrt::guid> serviceUUIDs)
 {
+    std::vector<std::string> serviceUuids;
     if (status == AsyncStatus::Completed)
     {
         GattDeviceServicesResult result = asyncOp.GetResults();
         CHECK_RESULT(result);
-        std::vector<std::string> serviceUuids;
+
+        auto resultStatus = result.Status();
+        if (resultStatus != GattCommunicationStatus::Success)
+        {
+            mEmit.ServicesDiscovered(uuid, serviceUuids, std::to_string((int)resultStatus));
+            return;
+        }
+        
         FOR(service, result.Services())
         {
             auto id = service.Uuid();
@@ -292,6 +378,7 @@ void BLEManager::OnServicesDiscovered(IAsyncOperation<GattDeviceServicesResult> 
     else
     {
         LOGE("status: %d", status);
+        mEmit.ServicesDiscovered(uuid, serviceUuids, std::to_string((int)status));
     }
 }
 
@@ -372,11 +459,19 @@ void BLEManager::OnCharacteristicsDiscovered(IAsyncOperation<GattCharacteristics
                                              const std::string serviceId,
                                              const std::vector<winrt::guid> characteristicUUIDs)
 {
+    std::vector<std::pair<std::string, std::vector<std::string>>> characteristicsUuids;
+
     if (status == AsyncStatus::Completed)
     {
         auto result = asyncOp.GetResults();
         CHECK_RESULT(result);
-        std::vector<std::pair<std::string, std::vector<std::string>>> characteristicsUuids;
+
+        auto resultStatus = result.Status();
+        if (resultStatus != GattCommunicationStatus::Success)
+        {
+            mEmit.CharacteristicsDiscovered(uuid, serviceId, characteristicsUuids, std::to_string((int)resultStatus));
+            return;
+        }
 
         FOR(characteristic, result.Characteristics())
         {
@@ -392,6 +487,7 @@ void BLEManager::OnCharacteristicsDiscovered(IAsyncOperation<GattCharacteristics
     else
     {
         LOGE("status: %d", status);
+        mEmit.CharacteristicsDiscovered(uuid, serviceId, characteristicsUuids, std::to_string((int)status));
     }
 }
 
@@ -454,6 +550,11 @@ bool BLEManager::Write(const std::string& uuid, const winrt::guid& serviceUuid,
     CHECK_DEVICE();
     IFDEVICE(device, uuid)
     {
+        if (device.ConnectionStatus() != BluetoothConnectionStatus::Connected)
+        {
+            return false;
+        }
+
         peripheral.GetCharacteristic(
             serviceUuid, characteristicUuid, [=](std::optional<GattCharacteristic> characteristic) {
                 if (characteristic)

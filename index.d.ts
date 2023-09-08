@@ -27,6 +27,7 @@ export declare function stopScanning(callback?: () => void): void;
 export declare function stopScanningAsync(): Promise<void>;
 export declare function cancelConnect(peripheralUuid: string, options?: object): void;
 export declare function reset(): void;
+export declare function cleanUp(): void;
 
 export declare function on(event: "stateChange", listener: (state: string) => void): events.EventEmitter;
 export declare function on(event: "scanStart", listener: () => void): events.EventEmitter;
@@ -147,6 +148,7 @@ export declare class Characteristic extends events.EventEmitter {
     type: string;
     properties: string[];
     descriptors: Descriptor[];
+    serviceUuid: string;
 
     read(callback?: (error: string, data: Buffer) => void): void;
     readAsync(): Promise<Buffer>;

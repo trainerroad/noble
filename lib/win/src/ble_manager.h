@@ -9,6 +9,10 @@
 
 #include <winrt/Windows.Devices.Bluetooth.Advertisement.h>
 #include <winrt/Windows.Devices.Bluetooth.GenericAttributeProfile.h>
+#include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.Foundation.Collections.h>
+#include <winrt/Windows.Storage.Streams.h>
+#include <winrt/Windows.Devices.Enumeration.h>
 
 #include "callbacks.h"
 #include "peripheral_winrt.h"
@@ -24,6 +28,7 @@ class BLEManager
 public:
     // clang-format off
     BLEManager(const Napi::Value& receiver, const Napi::Function& callback);
+    void CleanUp();
     void Scan(const std::vector<winrt::guid>& serviceUUIDs, bool allowDuplicates);
     void StopScan();
     bool Connect(const std::string& uuid);
@@ -40,6 +45,7 @@ public:
     bool WriteValue(const std::string& uuid, const winrt::guid& serviceUuid, const winrt::guid& characteristicUuid, const winrt::guid& descriptorUuid, const Data& data);
     bool ReadHandle(const std::string& uuid, int handle);
     bool WriteHandle(const std::string& uuid, int handle, Data data);
+    void SetupDeviceWatcher();
     // clang-format on
 
 private:
@@ -66,12 +72,27 @@ private:
     Emit mEmit;
     RadioWatcher mWatcher;
     AdapterState mRadioState;
+    DeviceWatcher mBleWatcher{ nullptr };;
     BluetoothLEAdvertisementWatcher mAdvertismentWatcher;
     winrt::event_revoker<IBluetoothLEAdvertisementWatcher> mReceivedRevoker;
     winrt::event_revoker<IBluetoothLEAdvertisementWatcher> mStoppedRevoker;
     bool mAllowDuplicates;
+    winrt::event_token resolver;
 
     std::unordered_map<std::string, PeripheralWinrt> mDeviceMap;
     std::set<std::string> mAdvertismentMap;
     NotifyMap mNotifyMap;
+
+    // DeviceWatcher CreateDeviceWatcher()
+    // {
+    //     auto requestedProperties = winrt::single_threaded_vector<winrt::hstring>({L"System.Devices.Aep.DeviceAddress",
+    //                                                                               L"System.Devices.Aep.SignalStrength"});
+
+    //     winrt::hstring bluetoothLeDeviceWatcherAqs = L"(System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\")";
+
+    //     return DeviceInformation::CreateWatcher(
+    //         bluetoothLeDeviceWatcherAqs,
+    //         requestedProperties,
+    //         DeviceInformationKind::AssociationEndpoint);
+    // }
 };
