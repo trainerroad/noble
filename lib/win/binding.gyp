@@ -10,7 +10,7 @@
       'msvs_settings': {
         'VCCLCompilerTool': {
           'ExceptionHandling': 1,
-          'AdditionalOptions': ['/await', '/std:c++latest'],
+          'AdditionalOptions': ['/await', '/std:c++17'],
         },
       },
       'msvs_target_platform_version':'10.0.18362.0',
