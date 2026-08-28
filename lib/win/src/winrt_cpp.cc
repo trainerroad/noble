@@ -44,7 +44,18 @@ std::string toStr(winrt::guid uuid)
         {
             auto i = ref.Value();
             std::ostringstream ret;
-            ret << std::hex << i;
+            // TryGetShortId returns a 32-bit short id. Zero-pad it to a width the BLE UUID
+            // codecs can read: 4 hex characters for a 16-bit id, 8 for a 32-bit one.
+            //
+            // Without the padding the leading zeros are dropped and the result is not a
+            // representable UUID width. 0x00FE renders "fe", which consumers reject outright,
+            // and 0x0001818F renders "1818f", which a 2-characters-at-a-time parse silently
+            // truncates to 0x1818 — the Cycling Power service — so an unrelated peripheral can
+            // be taken for a power meter.
+            //
+            // formatBluetoothAddress and formatBluetoothUuid above already pad for the same
+            // reason; this was the one place that did not.
+            ret << std::hex << std::setfill('0') << std::setw(i <= 0xFFFF ? 4 : 8) << i;
             return ret.str();
         }
     }
