@@ -50,7 +50,7 @@ std::string toStr(winrt::guid uuid)
             // Without the padding the leading zeros are dropped and the result is not a
             // representable UUID width. 0x00FE renders "fe", which consumers reject outright,
             // and 0x0001818F renders "1818f", which a 2-characters-at-a-time parse silently
-            // truncates to 0x1818 — the Cycling Power service — so an unrelated peripheral can
+            // truncates to 0x1818 -- the Cycling Power service -- so an unrelated peripheral can
             // be taken for a power meter.
             //
             // formatBluetoothAddress and formatBluetoothUuid above already pad for the same
