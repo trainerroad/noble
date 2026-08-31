@@ -5,61 +5,90 @@ on:
     branches:
       - master
     tags:
-      - '*'
+      - 'v*'
   pull_request:
     branches:
       - master
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   prebuild:
     strategy:
+      fail-fast: false
       matrix:
         include:
-          - name: darwin
-            os: macos-11
-            node: x64
-          - name: linux
-            os: ubuntu-latest
+          # This fork ships win32 prebuilds only: every release since
+          # v1.9.2-22 contains win32 assets exclusively, and binding.gyp
+          # declares sources for OS=="mac" and OS=="win" only.
           - name: win32
-            os: windows-2019
+            os: windows-2022
     name: Build ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
     steps:
-      - if: matrix.node
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 14.x
-          architecture: ${{ matrix.node }}
-      - uses: actions/checkout@v3
-      - name: Install dependencies (ubuntu-latest)
-        # Use g++-9 only on versions after 'ubuntu-18.04'
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: |
-          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-          sudo apt -qq update
-          sudo apt install -y g++-9
-          export CC="g++-9"
+          # generate-prebuilds.mjs uses top-level await and
+          # `import ... assert { type: 'json' }`, so it needs Node >= 18
+          # and does not run on Node >= 22 (import assertions removed).
+          node-version: 20.x
       - run: npm install --ignore-scripts
-      - run: npm run prebuild-${{ matrix.name }}
-      - run: tar -zcvf ${{ matrix.name }}.tar.gz -C prebuilds .
-      - uses: actions/upload-artifact@v2
+      - name: Install prebuild CLI
+        # generate-prebuilds.mjs spawns a bare `prebuild`, but the package is
+        # not a dependency. Without it every target fails and the script still
+        # exits 0, producing nothing.
+        run: npm install --no-save --ignore-scripts prebuild@^13
+      - name: Generate prebuilds
+        run: npm run gen-prebuilds
+      - name: Verify prebuilds were produced
+        shell: bash
+        run: |
+          set -euo pipefail
+          count=$(ls -1 prebuilds/@trainerroad/*.tar.gz 2>/dev/null | wc -l | tr -d ' ')
+          echo "prebuild tarballs produced: ${count}"
+          ls -l prebuilds/@trainerroad/ || true
+          if [ "${count}" -eq 0 ]; then
+            echo "::error::gen-prebuilds produced no tarballs. It logs per-target failures but always exits 0, so treat an empty prebuilds directory as a build failure."
+            exit 1
+          fi
+      - uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.name }}
-          path: ${{ matrix.name }}.tar.gz
-          retention-days: 1
+          name: prebuilds-${{ matrix.name }}
+          # Upload the individual per-ABI tarballs. node-pre-gyp resolves
+          # binary.host + remote_path (v{version}) + the default package_name
+          # noble-v{version}-{node_abi}-{platform}-{arch}.tar.gz, so each
+          # tarball has to land on the release under its own name.
+          path: prebuilds/@trainerroad/*.tar.gz
+          if-no-files-found: error
+          retention-days: 5
+
   release:
     needs: prebuild
     name: Release
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           path: artifacts
-      - uses: docker://antonyurchenko/git-release:v4
+          merge-multiple: true
+      - name: Upload prebuilds to the release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          args: artifacts/*/*.tar.gz
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          ls -l artifacts
+          if ! gh release view "${TAG}" --repo "${REPO}" >/dev/null 2>&1; then
+            gh release create "${TAG}" --repo "${REPO}" \
+              --title "${TAG}" \
+              --notes "Prebuilt binaries for ${TAG}."
+          fi
+          gh release upload "${TAG}" artifacts/*.tar.gz --repo "${REPO}" --clobber
