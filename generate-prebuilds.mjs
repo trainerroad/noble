@@ -98,12 +98,22 @@ async function prebuild(runtime, abi, arch, version) {
 }
 
 async function run() {
+  // The node side is pinned to the three ABIs the published releases
+  // actually carry (Node 17, 18 and 19). An open-ended lower bound asks for
+  // every newer ABI as well, and each one is another pair of WinRT compiles
+  // in a job that no consumer is waiting on.
+  const nodeAbis = [102, 108, 111];
   const targets = allTargets.filter(
     (x) =>
-      (x.runtime === 'node' && parseInt(x.abi, 10) >= 79) ||
+      (x.runtime === 'node' && nodeAbis.includes(parseInt(x.abi, 10))) ||
       (x.runtime === 'electron' &&
-        parseInt(x.abi, 10) > 97 &&
-        parseInt(x.abi, 10) < 114)
+        ((parseInt(x.abi, 10) > 97 && parseInt(x.abi, 10) < 114) ||
+          // ABI 136 is Electron 37, which is what the desktop app ships on.
+          // With no asset at that ABI, node-pre-gyp falls back to building
+          // from source and every Windows install compiles noble locally.
+          // Added as an explicit ABI rather than a wider range: the twelve
+          // ABIs between 114 and 135 have no consumer.
+          parseInt(x.abi, 10) === 136))
   );
   console.log('total targets', targets.length);
   for (const { runtime, abi, version } of targets) {
