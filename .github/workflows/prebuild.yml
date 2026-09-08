@@ -55,6 +55,14 @@ jobs:
             echo "::error::gen-prebuilds produced no tarballs. It logs per-target failures but always exits 0, so treat an empty prebuilds directory as a build failure."
             exit 1
           fi
+          # A non-zero count is not enough. gen-prebuilds swallows per-target
+          # failures, so a run can publish most of the matrix and still be
+          # missing the only tarball the desktop app can load. Assert the ABI
+          # the consumer actually resolves.
+          if ! ls -1 prebuilds/@trainerroad/ | grep -q -- '-electron-v136-win32-x64\.tar\.gz$'; then
+            echo "::error::No electron-v136-win32-x64 tarball. That is the ABI the Electron 37 desktop app resolves, and without it every Windows install falls back to compiling from source."
+            exit 1
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: prebuilds-${{ matrix.name }}
