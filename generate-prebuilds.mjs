@@ -98,11 +98,17 @@ async function prebuild(runtime, abi, arch, version) {
 }
 
 async function run() {
-  // The node side is pinned to the three ABIs the published releases
-  // actually carry (Node 17, 18 and 19). An open-ended lower bound asks for
-  // every newer ABI as well, and each one is another pair of WinRT compiles
-  // in a job that no consumer is waiting on.
-  const nodeAbis = [102, 108, 111];
+  // Node ABIs are listed explicitly: an open-ended range asks for every ABI
+  // node-abi knows, and each one is another native compile in this job.
+  // 115 (Node 20) is the one a consumer needs. TrainerRoadElectron installs
+  // noble on Node 20, the version its .nvmrc pins, and on Windows it
+  // switches node-pre-gyp's build-from-source fallback off, so a release
+  // without the node-v115 win32 asset fails that install with a 404.
+  // 102, 108 and 111 (Node 17, 18 and 19) stay because v1.9.2-24 and
+  // v1.9.2-25 published them. v1.9.2-23 also carried 79, 83, 88 and 93.
+  // TrainerRoadElectron, the only consumer in the trainerroad org, needs
+  // none of those seven.
+  const nodeAbis = [102, 108, 111, 115];
   const targets = allTargets.filter(
     (x) =>
       (x.runtime === 'node' && nodeAbis.includes(parseInt(x.abi, 10))) ||
