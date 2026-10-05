@@ -57,10 +57,14 @@ jobs:
           fi
           # A non-zero count is not enough. gen-prebuilds swallows per-target
           # failures, so a run can publish most of the matrix and still be
-          # missing the only tarball the desktop app can load. Assert the ABI
-          # the consumer actually resolves.
+          # missing the only tarball the desktop app can load. Assert each ABI
+          # a consumer actually resolves.
           if ! ls -1 prebuilds/@trainerroad/ | grep -q -- '-electron-v136-win32-x64\.tar\.gz$'; then
             echo "::error::No electron-v136-win32-x64 tarball. That is the ABI the Electron 37 desktop app resolves, and without it every Windows install falls back to compiling from source."
+            exit 1
+          fi
+          if ! ls -1 prebuilds/@trainerroad/ | grep -q -- '-node-v115-win32-x64\.tar\.gz$'; then
+            echo "::error::No node-v115-win32-x64 tarball. TrainerRoadElectron installs noble on Node 20 (ABI 115) with node-pre-gyp's build-from-source fallback switched off on Windows, so without this file its Windows install fails on a 404."
             exit 1
           fi
       - uses: actions/upload-artifact@v4
