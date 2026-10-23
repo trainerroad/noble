@@ -98,12 +98,9 @@ async function prebuild(runtime, abi, arch, version) {
 }
 
 async function run() {
+  const nodeAbis = [127, 137, 147];
   const targets = allTargets.filter(
-    (x) =>
-      (x.runtime === 'node' && parseInt(x.abi, 10) >= 79) ||
-      (x.runtime === 'electron' &&
-        parseInt(x.abi, 10) > 97 &&
-        parseInt(x.abi, 10) < 114)
+    (x) => x.runtime === 'node' && nodeAbis.includes(parseInt(x.abi, 10))
   );
   console.log('total targets', targets.length);
   for (const { runtime, abi, version } of targets) {
