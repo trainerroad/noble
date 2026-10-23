@@ -98,27 +98,12 @@ async function prebuild(runtime, abi, arch, version) {
 }
 
 async function run() {
-  // Node ABIs are listed explicitly: an open-ended range asks for every ABI
-  // node-abi knows, and each one is another native compile in this job.
-  // 115 (Node 20) is the one a consumer needs. TrainerRoadElectron installs
-  // noble on Node 20, the version its .nvmrc pins, and on Windows it
-  // switches node-pre-gyp's build-from-source fallback off, so a release
-  // without the node-v115 win32 asset fails that install with a 404.
-  // 102, 108 and 111 (Node 17, 18 and 19) stay because v1.9.2-24 and
-  // v1.9.2-25 published them. v1.9.2-23 also carried 79, 83, 88 and 93.
-  // TrainerRoadElectron, the only consumer in the trainerroad org, needs
-  // none of those seven.
   const nodeAbis = [102, 108, 111, 115];
   const targets = allTargets.filter(
     (x) =>
       (x.runtime === 'node' && nodeAbis.includes(parseInt(x.abi, 10))) ||
       (x.runtime === 'electron' &&
         ((parseInt(x.abi, 10) > 97 && parseInt(x.abi, 10) < 114) ||
-          // ABI 136 is Electron 37, which is what the desktop app ships on.
-          // With no asset at that ABI, node-pre-gyp falls back to building
-          // from source and every Windows install compiles noble locally.
-          // Added as an explicit ABI rather than a wider range: the twelve
-          // ABIs between 114 and 135 have no consumer.
           parseInt(x.abi, 10) === 136))
   );
   console.log('total targets', targets.length);
@@ -129,7 +114,6 @@ async function run() {
       if (process.platform === 'win32') {
         await prebuild(runtime, abi, 'ia32', version);
       } else if (process.platform === 'darwin') {
-        // need both arm64 and x64 binaries to support apple silicon
         await prebuild(
           runtime,
           abi,
