@@ -113,7 +113,6 @@ async function run() {
       if (process.platform === 'win32') {
         await prebuild(runtime, abi, 'ia32', version);
       } else if (process.platform === 'darwin') {
-        // need both arm64 and x64 binaries to support apple silicon
         await prebuild(
           runtime,
           abi,
