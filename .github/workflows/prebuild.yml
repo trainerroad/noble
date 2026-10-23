@@ -50,10 +50,12 @@ jobs:
             echo "::error::No electron-v136-win32-x64 tarball. That is the ABI the Electron 37 desktop app resolves, and without it every Windows install falls back to compiling from source."
             exit 1
           fi
-          if ! ls -1 prebuilds/@trainerroad/ | grep -q -- '-node-v115-win32-x64\.tar\.gz$'; then
-            echo "::error::No node-v115-win32-x64 tarball. TrainerRoadElectron installs noble on Node 20 (ABI 115) with node-pre-gyp's build-from-source fallback switched off on Windows, so without this file its Windows install fails on a 404."
-            exit 1
-          fi
+          for abi in 115 127 137 147; do
+            if ! ls -1 prebuilds/@trainerroad/ | grep -q -- "-node-v${abi}-win32-x64\.tar\.gz$"; then
+              echo "::error::No node-v${abi}-win32-x64 tarball. TrainerRoadElectron installs noble with node-pre-gyp's build-from-source fallback switched off on Windows, so a Node whose ABI has no asset (115 = Node 20, 127 = 22, 137 = 24, 147 = 26) fails its Windows install on a 404."
+              exit 1
+            fi
+          done
       - uses: actions/upload-artifact@v4
         with:
           name: prebuilds-${{ matrix.name }}
